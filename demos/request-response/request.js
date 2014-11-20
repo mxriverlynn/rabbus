@@ -11,7 +11,8 @@ Rabbit.configure({
   function SomeRequester(rabbus){
     Rabbus.Requester.call(this, rabbus, {
       exchange: "req-res.exchange",
-      messageType: "req-res.messageType"
+      messageType: "req-res.messageType",
+      routingKey: "req-res.key"
     });
   }
 

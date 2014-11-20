@@ -1,6 +1,5 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var config = require("./config");
 
 var Publisher = require("../lib/publisher");
 var Subscriber = require("../lib/subscriber");
@@ -18,10 +17,6 @@ describe("publish / subscribe", function(){
   var msgType1 = "pub-sub.messageType.1";
   var ex1 = "pub-sub.ex.1";
   var q1 = "pub-sub.q.1";
-
-  rabbit.configure({
-    connection: config
-  });
 
   describe("when publishing a message with a subscriber", function(){
     var async = new Async(this);
@@ -62,5 +57,13 @@ describe("publish / subscribe", function(){
 
   });
 
-});
+  // give wascally some time to 
+  // batch things up and complete
+  var async = new Async(this);
+  async.afterEach(function(done){
+    setTimeout(function(){
+      done();
+    },500);
+  });
 
+});

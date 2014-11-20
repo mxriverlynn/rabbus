@@ -1,6 +1,5 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var config = require("./config");
 
 var Requester = require("../lib/requester");
 var Responder = require("../lib/responder");
@@ -15,13 +14,10 @@ function reportErr(err){
 describe("request / response", function(){
   var msg1 = {foo: "bar"};
   var msg2 = {baz: "quux"};
-  var msgType1 = "message.type.1";
-  var ex1 = "ex.1";
-  var q1 = "q.1";
-
-  rabbit.configure({
-    connection: config
-  });
+  var msgType1 = "req-res.message.type";
+  var routingKey = "req-res.key";
+  var ex1 = "req-res.ex";
+  var q1 = "req-res.q";
 
   describe("when making a request, and a response is sent back", function(){
     var async = new Async(this);
@@ -33,7 +29,8 @@ describe("request / response", function(){
     async.beforeEach(function(done){
       req = new Requester(rabbit, {
         exchange: ex1,
-        messageType: msgType1
+        messageType: msgType1,
+        routingKey: routingKey
       });
       req.on("error", reportErr);
 
@@ -41,6 +38,7 @@ describe("request / response", function(){
         exchange: ex1,
         queue: q1,
         messageType: msgType1,
+        routingKey: routingKey,
         limit: 1
       });
       res.on("error", reportErr);
@@ -68,6 +66,15 @@ describe("request / response", function(){
       expect(responseMessage.baz).toBe(msg2.baz);
     });
 
+  });
+
+  // give wascally some time to 
+  // batch things up and complete
+  var async = new Async(this);
+  async.afterEach(function(done){
+    setTimeout(function(){
+      done();
+    },500);
   });
 
 });

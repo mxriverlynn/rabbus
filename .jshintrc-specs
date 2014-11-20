@@ -12,6 +12,7 @@
   "browser": true,
   "strict": false,
   "globalstrict": true,
+  "debug": true,
   "globals": {
     "describe": true,
     "xdescribe": true,

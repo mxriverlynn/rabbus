@@ -1,6 +1,5 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var config = require("./config");
 
 var Sender = require("../lib/sender");
 var Receiver = require("../lib/receiver");
@@ -19,10 +18,6 @@ describe("send / receive", function(){
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";
   var rKey = "test.key";
-
-  rabbit.configure({
-    connection: config
-  });
 
   describe("when sending a message with a receiver", function(){
     var async = new Async(this);
@@ -61,17 +56,19 @@ describe("send / receive", function(){
       rec.on("ready", sendIt);
     });
 
-    async.afterEach(function(done){
-      setTimeout(function(){
-        done();
-      },500);
-    });
-
     it("receiver should receive the message", function(){
       expect(sendMessage.foo).toBe(msg1.foo);
     });
 
   });
 
-});
+  // give wascally some time to 
+  // batch things up and complete
+  var async = new Async(this);
+  async.afterEach(function(done){
+    setTimeout(function(){
+      done();
+    },500);
+  });
 
+});

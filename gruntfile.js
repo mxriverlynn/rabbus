@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       },
 
       rabbus: {
-        src: "specs/**/*"
+        src: ["specs/**/*.specs.js"]
       }
     },
 
@@ -36,19 +36,16 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      // node specs
-      // ----------
-
       rabbus: {
         files: "lib/**/*.js",
-        tasks: ["jasmine_node"]
+        tasks: ["specs"]
       },
 
       specs: {
         files: "specs/**/*.js",
-        tasks: ["jasmine_node"]
+        tasks: ["specs"]
       }
-    },
+    }
 
   });
 

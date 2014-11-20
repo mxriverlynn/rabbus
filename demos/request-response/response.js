@@ -14,7 +14,8 @@ Rabbit.configure({
       queue: "req-res.queue",
       routingKey: "req-res.key",
       limit: 1,
-      messageType: "req-res.messageType"
+      messageType: "req-res.messageType",
+      routingKey: "req-res.key"
     });
   }
 

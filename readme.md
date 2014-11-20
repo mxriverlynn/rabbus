@@ -173,8 +173,9 @@ sub3.subscribe(function(message){
 
 ### Request / Response
 
-The request/response pair uses a fanout exchange right now, but this will
-likely be changed to topic queue in the near future.
+The request/response pair uses a "topic" exchange. You should set the
+routing key via the "routingKey" parameter, but it will default to the 
+message type if none is supplied.
 
 With a request/response setup, you can send a request for information and
 respond to it. A private, temporary queue will be created for the response
@@ -189,7 +190,8 @@ var Rabbus = require("rabbus");
 function SomeRequester(rabbus){
   Rabbus.Requester.call(this, rabbus, {
     exchange: "req-res.exchange",
-    messageType: "req-res.messageType"
+    messageType: "req-res.messageType",
+    routingKey: "req-res.key"
   });
 }
 

@@ -1,8 +1,7 @@
 {
-  "rabbitmq": {
-    "server": "localhost",
-    "vhost": "rabbus-specs",
-    "user": "rabbus",
-    "password": "rabbus"
-  }
+  "server": "localhost",
+  "port": 15672,
+  "vhost": "/rabbus-specs",
+  "user": "rabbus",
+  "pass": "rabbus"
 }
