@@ -1,0 +1,13 @@
+.DS_Store
+/deploy
+/queries
+/build/reports
+database/db_backups/development
+database/db_backups/staging
+database/db_backups/production
+node_modules
+npm-debug.log
+*.swp
+*.swo
+*.sw0
+*.orig
