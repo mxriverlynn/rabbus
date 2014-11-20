@@ -1,9 +1,9 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var epa = require("epa").getEnvironment();
+var config = require("./config");
 
-var Publisher = require("../core/publisher");
-var Subscriber = require("../core/subscriber");
+var Publisher = require("../lib/publisher");
+var Subscriber = require("../lib/subscriber");
 
 function reportErr(err){
   setImmediate(function(){
@@ -20,7 +20,7 @@ describe("publish / subscribe", function(){
   var q1 = "pub-sub.q.1";
 
   rabbit.configure({
-    connection: epa.get("rabbitmq-specs")
+    connection: config
   });
 
   describe("when publishing a message with a subscriber", function(){

@@ -1,9 +1,9 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var epa = require("epa").getEnvironment();
+var config = require("./config");
 
-var Requester = require("../core/requester");
-var Responder = require("../core/responder");
+var Requester = require("../lib/requester");
+var Responder = require("../lib/responder");
 
 function reportErr(err){
   setImmediate(function(){
@@ -20,7 +20,7 @@ describe("request / response", function(){
   var q1 = "q.1";
 
   rabbit.configure({
-    connection: epa.get("rabbitmq-specs")
+    connection: config
   });
 
   describe("when making a request, and a response is sent back", function(){

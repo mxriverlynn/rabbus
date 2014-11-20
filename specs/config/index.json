@@ -1,0 +1,8 @@
+{
+  "rabbitmq": {
+    "server": "localhost",
+    "vhost": "omnibus-specs",
+    "user": "omnibus",
+    "password": "omnibus"
+  }
+}

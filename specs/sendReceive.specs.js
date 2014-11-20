@@ -1,9 +1,9 @@
 var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-var epa = require("epa").getEnvironment();
+var config = require("./config");
 
-var Sender = require("../core/sender");
-var Receiver = require("../core/receiver");
+var Sender = require("../lib/sender");
+var Receiver = require("../lib/receiver");
 
 function reportErr(err){
   setImmediate(function(){
@@ -21,7 +21,7 @@ describe("send / receive", function(){
   var rKey = "test.key";
 
   rabbit.configure({
-    connection: epa.get("rabbitmq-specs")
+    connection: config
   });
 
   describe("when sending a message with a receiver", function(){

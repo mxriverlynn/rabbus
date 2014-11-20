@@ -1,0 +1,29 @@
+{
+  "curly": true,
+  "eqeqeq": true,
+  "immed": false,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "sub": true,
+  "undef": true,
+  "boss": true,
+  "eqnull": true,
+  "browser": true,
+  "strict": false,
+  "globalstrict": true,
+  "globals": {
+    "describe": true,
+    "xdescribe": true,
+    "it": true,
+    "xit": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "expect": true,
+    "setImmediate": true,
+    "setTimeout": true,
+    "console": true,
+    "require": true,
+    "module": true
+  }
+}
