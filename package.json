@@ -1,5 +1,5 @@
 {
-  "name": "omnibus",
+  "name": "rabbus",
   "version": "0.1.0",
   "description": "A highly opinionated set of messaging abstractions for RabbitMQ, built with Wascally",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/derickbailey/omnibus.git"
+    "url": "https://github.com/derickbailey/rabbus.git"
   },
   "keywords": [
     "rabbitmq",
@@ -27,9 +27,9 @@
   "author": "Derick Bailey",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/derickbailey/omnibus/issues"
+    "url": "https://github.com/derickbailey/rabbus/issues"
   },
-  "homepage": "https://github.com/derickbailey/omnibus",
+  "homepage": "https://github.com/derickbailey/rabbus",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.10.0",

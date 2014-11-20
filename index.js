@@ -5,7 +5,7 @@ var Receive = require('./lib/receive');
 var Publish = require('./lib/publish');
 var Subscribe = require('./lib/subscribe');
 
-var omnibus = {
+var rabbus = {
   Request: Request,
   Response: Response,
   Send: Send,
@@ -14,4 +14,4 @@ var omnibus = {
   Subscribe: Subscribe
 };
 
-module.exports = omnibus;
+module.exports = rabbus;

@@ -15,13 +15,13 @@ module.exports = function(grunt) {
         jUnit: { report: false }
       },
 
-      omnibus: {
+      rabbus: {
         src: "specs/**/*"
       }
     },
 
     jshint: {
-      omnibus: {
+      rabbus: {
         src: ["lib/**/*.js"],
         options: {
           jshintrc: ".jshintrc"
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
       // node specs
       // ----------
 
-      omnibus: {
+      rabbus: {
         files: "lib/**/*.js",
         tasks: ["jasmine_node"]
       },
