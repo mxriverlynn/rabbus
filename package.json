@@ -1,6 +1,6 @@
 {
   "name": "rabbus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A highly opinionated set of messaging abstractions for RabbitMQ, built with Wascally",
   "main": "index.js",
   "scripts": {
@@ -38,7 +38,6 @@
     "node-jasmine-async": "^0.1.0"
   },
   "dependencies": {
-    "wascally": "^0.2.0-5",
     "when": "^3.6.3"
   }
 }
