@@ -24,7 +24,7 @@ npm install --save rabbus
 ```
 
 Please note that Wascally is explicitly NOT mentioned as a dependency in the
-Rabbus package.json file. This is done with intent, to help prevent library
+Rabbus package.json file for runtime dependencies. This is done with intent, to help prevent library
 version conflicts.
 
 ## Using Rabbus
@@ -42,9 +42,12 @@ exchange to which it sends. Conversely, the object that consumes a message
 from within RabbitMQ needs to know about both the exchange and the queue to 
 which it subscribes.
 
-The following provide basic working examples of each object pair. Please see the
-[Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
-on configuring RabbitMQ connections.
+The following provide basic working examples of each object pair. If you would 
+like to run these demos for yourself, please see the [demos folder](demos)
+of the repository.
+
+Please see the [Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
+on configuring RabbitMQ.
 
 ### Send / Receive
 
@@ -54,22 +57,25 @@ allowing you to specify the binding key.
 Set up a Sender:
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomeSender(rabbus){
-  Rabbus.Sender.apply(this, rabbus, {
+  Rabbus.Sender.call(this, rabbus, {
     exchange: "send-rec.exchange",
     routingKey: "send-rec.key",
     messageType: "send-rec.messageType"
   });
 }
 
+util.inherits(SomeSender, Rabbus.Sender);
+
 var sender = new SomeSender(Rabbit);
 var message = {
   place: "world"
 };
 
-sender.send(msg, function(){
+sender.send(message, function(){
   console.log("sent a message");
 });
 ```
@@ -77,16 +83,19 @@ sender.send(msg, function(){
 Set up a Receiver:
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomeReceiver(rabbus){
-  Rabbus.Receiver.apply(this, rabbus, {
+  Rabbus.Receiver.call(this, rabbus, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
     routingKey: "send-rec.key",
     messageType: "send-rec.messageType"
   });
 }
+
+util.inherits(SomeReceiver, Rabbus.Receiver);
 
 var receiver = new SomeReceiver(Rabbit);
 
@@ -106,22 +115,25 @@ listening.
 Set up a Publisher:
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomePublisher(rabbus){
-  Rabbus.Publisher.apply(this, rabbus, {
+  Rabbus.Publisher.call(this, rabbus, {
     exchange: "pub-sub.exchange",
     routingKey: "pub-sub.key",
     messageType: "pub-sub.messageType"
   });
 }
 
+util.inherits(SomePublisher, Rabbus.Publisher);
+
 var publisher = new SomePublisher(Rabbit);
 var message = {
   place: "world"
 };
 
-publisher.publish(msg, function(){
+publisher.publish(message, function(){
   console.log("published an event!");
 });
 ```
@@ -129,16 +141,19 @@ publisher.publish(msg, function(){
 Set up a Subscriber:
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomeSubscriber(rabbus){
-  Rabbus.Subscriber.apply(this, rabbus, {
+  Rabbus.Subscriber.call(this, rabbus, {
     exchange: "pub-sub.exchange",
     queue: "pub-sub.queue",
     routingKey: "pub-sub.key",
     messageType: "pub-sub.messageType"
   });
 }
+
+util.inherits(SomeSubscriber, Rabbus.Subscriber);
 
 var sub1 = new SomeSubscriber(Rabbit);
 sub1.subscribe(function(message){
@@ -168,14 +183,17 @@ message, ensuring that it gets back to the requester correctly.
 Set up a Requester
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomeRequester(rabbus){
-  Rabbus.Requester.apply(this, rabbus, {
+  Rabbus.Requester.call(this, rabbus, {
     exchange: "req-res.exchange",
     messageType: "req-res.messageType"
   });
 }
+
+util.inherits(SomeRequester, Rabbus.Requester);
 
 var requester = new SomeRequester(Rabbit);
 
@@ -189,10 +207,11 @@ requester.request(msg, function(response, done){
 Set up a Responder:
 
 ```js
+var util = require("util");
 var Rabbus = require("rabbus");
 
 function SomeResponder(rabbus){
-  Rabbus.Responder.apply(this, rabbus, {
+  Rabbus.Responder.call(this, rabbus, {
     exchange: "req-res.exchange",
     queue: "req-res.queue",
     routingKey: "req-res.key",
@@ -200,6 +219,8 @@ function SomeResponder(rabbus){
     messageType: "req-res.messageType"
   });
 }
+
+util.inherits(SomeResponder, Rabbus.Responder);
 
 var responder = new SomeResponder(Rabbit);
 
