@@ -1,17 +1,17 @@
-var Request = require('./lib/request');
-var Response = require('./lib/response');
-var Send = require('./lib/send');
-var Receive = require('./lib/receive');
-var Publish = require('./lib/publish');
-var Subscribe = require('./lib/subscribe');
+var Requester = require('./lib/requester');
+var Responder = require('./lib/responder');
+var Sender = require('./lib/sender');
+var Receiver = require('./lib/receiver');
+var Publisher = require('./lib/publisher');
+var Subscriber = require('./lib/subscriber');
 
 var rabbus = {
-  Request: Request,
-  Response: Response,
-  Send: Send,
-  Receive: Receive,
-  Publish: Publish,
-  Subscribe: Subscribe
+  Requester: Requester,
+  Responder: Responder,
+  Sender: Sender,
+  Receiver: Receiver,
+  Publisher: Publisher,
+  Subscriber: Subscriber
 };
 
 module.exports = rabbus;
