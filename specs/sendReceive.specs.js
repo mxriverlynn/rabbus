@@ -19,7 +19,7 @@ describe("send / receive", function(){
   var q1 = "send-receive.q.1";
   var rKey = "test.key";
 
-  describe("when sending a message with a receiver", function(){
+  describe("given a receiver in place, when sending a message", function(){
     var async = new Async(this);
 
     var send, rec;
@@ -44,7 +44,6 @@ describe("send / receive", function(){
 
       rec.receive(function(data, ack){
         ack();
-        console.log("GOT THE MESSAGE");
         sendMessage = data;
         done();
       });
@@ -60,6 +59,104 @@ describe("send / receive", function(){
       expect(sendMessage.foo).toBe(msg1.foo);
     });
 
+  });
+
+  describe("when sending a message with a correlationId", function(){
+    var async = new Async(this);
+
+    var send, rec;
+    var sendHandled, recHandled;
+    var sendMessage;
+
+    async.beforeEach(function(done){
+      send = new Sender(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      rec.on("error", reportErr);
+
+      var correlationIdOptions = {
+        correlationId: "foo-bar"
+      };
+
+      rec.receive(correlationIdOptions, function(data, ack){
+        ack();
+        sendMessage = data;
+        done();
+      });
+
+      function sendIt(){
+        send.send(msg1, correlationIdOptions);
+      }
+
+      rec.on("ready", sendIt);
+    });
+
+    it("receiver should receive the message with the correlationId", function(){
+      expect(sendMessage.foo).toBe(msg1.foo);
+    });
+  });
+
+  describe("when waiting for a different correlationId than was sent", function(){
+    var async = new Async(this);
+
+    var send, rec, nacked;
+    var sendHandled, recHandled;
+    var sendMessage;
+
+    async.beforeEach(function(done){
+      send = new Sender(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      rec.on("error", reportErr);
+
+      var receiveOptions = {
+        correlationId: "a-different-one"
+      };
+      rec.receive(receiveOptions, function(data, ack){
+        ack();
+        sendMessage = data;
+        done();
+      });
+
+      function sendIt(){
+        var sendOptions = {
+          correlationId: "some.correlation.id"
+        };
+        send.send(msg1, sendOptions);
+      }
+
+      rec.on("ready", sendIt);
+
+      rec.on("nack", function(){
+        nacked = true;
+        done();
+      });
+    });
+
+    it("receiver should nack the message, due to wrong correlationid", function(){
+      expect(sendMessage).toBe(undefined);
+      expect(nacked).toBe(true);
+    });
   });
 
   // give wascally some time to 

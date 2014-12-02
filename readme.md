@@ -1,17 +1,23 @@
-# Rabbus
+# Rabbus: Micro-ESB For NodeJS/RabbitMQ
 
-A highly opinionated set of message bus abstractions for NodeJS, built on top of
-[RabbitMQ](http://rabbitmq.com), with [Wascally](https://github.com/LeanKit-Labs/wascally).
+A highly opinionated, yet minimal, set of message bus abstractions for NodeJS.
+It is built on top of [RabbitMQ](http://rabbitmq.com), 
+with [Wascally](https://github.com/LeanKit-Labs/wascally) as the primary library
+for working with RabbitMQ.
 
 ## About Rabbus
 
-Rabbus is a basic "service bus" implementation for NodeJS, built on top of
-RabbitMQ with the Wascally library to manage RabbitMQ. The service bus
-implementation is basic, but includes several of the most common patterns:
+The service bus implementation is basic, but includes several of the most 
+common patterns:
 
 * Send / Receive
 * Publish / Subscribe
 * Request / Response
+
+Please note that the names of these patterns imply certain things both in
+semantics and in behaviors. I (@derickbailey) have put my own experience and
+opinions in to these names and the RabbitMQ configuration associated with them.
+Some of the behavior is inherited from Wascally, as well.
 
 ## Installing Rabbus
 
@@ -104,6 +110,51 @@ receiver.receive(function(message, done){
   done();
 });
 ```
+
+#### Using a CorrelationID with Send/Receive
+
+The Send/Receive pair optionally allows a `correlationId` to be passed in 
+through an options object literal, with the `send` and `receive` methods,
+respectively. Providing a `correlationId` on the send side of things requies
+a `receive` request to state the same correlationId. If an incorrect
+correlationId, or no correlationId, is specified, then the receiver will "nack"
+the message, sending it back to the queue.
+
+Using the `SomeSender` and `SomeReceiver` defined above, you can specify
+a correlationId to match between them.
+
+```js
+// options with correlationId
+// --------------------------
+
+var options = {
+  correlationId: "some-correlation-id"
+};
+
+// sender
+// ------
+
+var message = { place: "world" };
+
+var sender = new SomeSender(Rabbit);
+sender.send(message, options, function(){
+  console.log("sent a message with a correlationId:", options.correlationId);
+});
+
+// receiver
+// --------
+
+var receiver = new SomeReceiver(Rabbit);
+
+receiver.receive(options, function(message, done){
+  console.log("hello", message.place, " - with correlationId:", options.correlationId);
+  done();
+});
+```
+
+A correlationId can be used with any given Send/Receive pair, but you should
+consider having specific queues / exchange bindings to prevent accidental
+handling of the correlated message by other handlers.
 
 ### Publish / Subscribe
 
