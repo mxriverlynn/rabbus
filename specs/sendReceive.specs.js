@@ -159,6 +159,56 @@ describe("send / receive", function(){
     });
   });
 
+  describe("when sending a message w/ a correlationId, and receiving with no correlationId specified", function(){
+    var async = new Async(this);
+
+    var send, rec, sendMessage;
+    var sendHandled, recHandled;
+    var nacked = false;
+
+    async.beforeEach(function(done){
+      send = new Sender(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      rec.on("error", reportErr);
+
+      rec.receive(function(data, ack){
+        ack();
+        sendMessage = data;
+        done();
+      });
+
+      function sendIt(){
+        var sendOptions = {
+          correlationId: "some.correlation.id"
+        };
+        send.send(msg1, sendOptions);
+      }
+
+      rec.on("ready", sendIt);
+
+      rec.on("nack", function(){
+        nacked = true;
+        done();
+      });
+    });
+
+    it("receiver should nack the message, due to wrong correlationid", function(){
+      expect(sendMessage).toBe(undefined);
+      expect(nacked).toBe(true);
+    });
+  });
+
   // give wascally some time to 
   // batch things up and complete
   var async = new Async(this);
