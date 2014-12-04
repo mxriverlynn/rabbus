@@ -3,6 +3,7 @@ var rabbit = require("wascally");
 
 var Sender = require("../lib/sender");
 var Receiver = require("../lib/receiver");
+var config = require("./config");
 
 function reportErr(err){
   setImmediate(function(){
@@ -19,6 +20,17 @@ describe("send / receive", function(){
   var q1 = "send-receive.q.1";
   var rKey = "test.key";
 
+  var async = new Async(this);
+  async.beforeEach(function(done){
+    rabbit.configure({
+      connection: config
+    }).then(function(){
+      done();
+    }).then(null, function(err){
+      reportErr(err);
+    });
+  });
+
   describe("given a receiver in place, when sending a message", function(){
     var async = new Async(this);
 
@@ -30,7 +42,8 @@ describe("send / receive", function(){
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       send.on("error", reportErr);
 
@@ -38,7 +51,8 @@ describe("send / receive", function(){
         exchange: ex1,
         queue: q1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       rec.on("error", reportErr);
 
@@ -72,7 +86,8 @@ describe("send / receive", function(){
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       send.on("error", reportErr);
 
@@ -80,7 +95,8 @@ describe("send / receive", function(){
         exchange: ex1,
         queue: q1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       rec.on("error", reportErr);
 
@@ -117,7 +133,8 @@ describe("send / receive", function(){
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       send.on("error", reportErr);
 
@@ -125,24 +142,22 @@ describe("send / receive", function(){
         exchange: ex1,
         queue: q1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       rec.on("error", reportErr);
 
-      var receiveOptions = {
-        correlationId: "a-different-one"
-      };
-      rec.receive(receiveOptions, function(data, ack){
+      rec.receive({correlationId: "nope"}, function(data, ack){
         ack();
         sendMessage = data;
         done();
       });
 
       function sendIt(){
-        var sendOptions = {
-          correlationId: "some.correlation.id"
+        var correlationIdOptions = {
+          correlationId: "foo-bar"
         };
-        send.send(msg1, sendOptions);
+        send.send(msg1, correlationIdOptions);
       }
 
       rec.on("ready", sendIt);
@@ -170,7 +185,8 @@ describe("send / receive", function(){
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       send.on("error", reportErr);
 
@@ -178,7 +194,8 @@ describe("send / receive", function(){
         exchange: ex1,
         queue: q1,
         messageType: msgType1,
-        routingKey: rKey
+        routingKey: rKey,
+        autoDelete: true
       });
       rec.on("error", reportErr);
 
@@ -189,10 +206,10 @@ describe("send / receive", function(){
       });
 
       function sendIt(){
-        var sendOptions = {
-          correlationId: "some.correlation.id"
+        var correlationIdOptions = {
+          correlationId: "foo-bar"
         };
-        send.send(msg1, sendOptions);
+        send.send(msg1, correlationIdOptions);
       }
 
       rec.on("ready", sendIt);
@@ -209,12 +226,70 @@ describe("send / receive", function(){
     });
   });
 
-  // give wascally some time to 
-  // batch things up and complete
-  var async = new Async(this);
+  describe("when a receiver throws an error", function(){
+    var async = new Async(this);
+
+    var send, rec, err;
+    var sendHandled, recHandled;
+    var sendMessage;
+    var nacked = false;
+    var handlerError = new Error("error handling message");
+
+    async.beforeEach(function(done){
+      send = new Sender(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        routingKey: rKey,
+        autoDelete: true
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        routingKey: rKey,
+        autoDelete: true
+      });
+
+      rec.receive(function(data, ack){
+        throw handlerError;
+      });
+
+      function sendIt(){
+        send.send(msg1);
+      }
+
+      rec.on("ready", sendIt);
+
+      rec.on("nack", function(){
+        nacked = true;
+      });
+
+      rec.on("error", function(ex){
+        err = ex;
+        done();
+      });
+
+    });
+
+    it("should emit the error from the receiver", function(){
+      expect(err).toBe(handlerError);
+    });
+
+    it("should nack the message", function(){
+      expect(nacked).toBe(true);
+    });
+  });
+
+
   async.afterEach(function(done){
     setTimeout(function(){
-      done();
+      rabbit.closeAll().then(function(){
+        done();
+      }).then(null, function(err){
+        reportErr(err);
+      });
     },500);
   });
 

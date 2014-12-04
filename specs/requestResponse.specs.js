@@ -3,6 +3,7 @@ var rabbit = require("wascally");
 
 var Requester = require("../lib/requester");
 var Responder = require("../lib/responder");
+var config = require("./config");
 
 function reportErr(err){
   setImmediate(function(){
@@ -19,6 +20,17 @@ describe("request / response", function(){
   var ex1 = "req-res.ex";
   var q1 = "req-res.q";
 
+  var async = new Async(this);
+  async.beforeEach(function(done){
+    rabbit.configure({
+      connection: config
+    }).then(function(){
+      done();
+    }).then(null, function(err){
+      reportErr(err);
+    });
+  });
+
   describe("when making a request, and a response is sent back", function(){
     var async = new Async(this);
 
@@ -30,7 +42,8 @@ describe("request / response", function(){
       req = new Requester(rabbit, {
         exchange: ex1,
         messageType: msgType1,
-        routingKey: routingKey
+        routingKey: routingKey,
+        autoDelete: true
       });
       req.on("error", reportErr);
 
@@ -39,7 +52,8 @@ describe("request / response", function(){
         queue: q1,
         messageType: msgType1,
         routingKey: routingKey,
-        limit: 1
+        limit: 1,
+        autoDelete: true
       });
       res.on("error", reportErr);
 
@@ -68,12 +82,72 @@ describe("request / response", function(){
 
   });
 
-  // give wascally some time to 
-  // batch things up and complete
-  var async = new Async(this);
+  describe("when a responder throws an error", function(){
+    var async = new Async(this);
+
+    var req, res, err;
+    var reqHandled, resHandled;
+    var requestMessage, responseMessage;
+    var nacked = false;
+    var handlerError = new Error("error handling message");
+
+    async.beforeEach(function(done){
+      req = new Requester(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        routingKey: routingKey,
+        autoDelete: true
+      });
+      req.on("error", reportErr);
+
+      res = new Responder(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        routingKey: routingKey,
+        limit: 1,
+        autoDelete: true
+      });
+
+      res.handle(function(data, respond){
+        throw handlerError;
+      });
+
+      function makeRequest(){
+        req.request(msg1, function(data){
+          responseMessage = data;
+          done();
+        });
+      }
+
+      res.on("ready", makeRequest);
+
+      res.on("error", function(ex){
+        err = ex;
+        done();
+      });
+
+      res.on("nack", function(){
+        nacked = true;
+      });
+    });
+
+    it("should raise an error event", function(){
+      expect(err).toBe(handlerError);
+    });
+
+    it("should nack the message", function(){
+      expect(nacked).toBe(true);
+    });
+  });
+
   async.afterEach(function(done){
     setTimeout(function(){
-      done();
+      rabbit.closeAll().then(function(){
+        done();
+      }).then(null, function(err){
+        reportErr(err);
+      });
     },500);
   });
 
