@@ -3,6 +3,7 @@ var rabbit = require("wascally");
 
 var Publisher = require("../lib/publisher");
 var Subscriber = require("../lib/subscriber");
+var config = require("./config");
 
 function reportErr(err){
   setImmediate(function(){
@@ -18,6 +19,17 @@ describe("publish / subscribe", function(){
   var ex1 = "pub-sub.ex.1";
   var q1 = "pub-sub.q.1";
 
+  var async = new Async(this);
+  async.beforeEach(function(done){
+    rabbit.configure({
+      connection: config
+    }).then(function(){
+      done();
+    }).then(null, function(err){
+      reportErr(err);
+    });
+  });
+
   describe("when publishing a message with a subscriber", function(){
     var async = new Async(this);
 
@@ -28,14 +40,16 @@ describe("publish / subscribe", function(){
     async.beforeEach(function(done){
       pub = new Publisher(rabbit, {
         exchange: ex1,
-        messageType: msgType1
+        messageType: msgType1,
+        autoDelete: true
       });
       pub.on("error", reportErr);
 
       sub = new Subscriber(rabbit, {
         exchange: ex1,
         queue: q1,
-        messageType: msgType1
+        messageType: msgType1,
+        autoDelete: true
       });
       sub.on("error", reportErr);
 
@@ -57,12 +71,68 @@ describe("publish / subscribe", function(){
 
   });
 
-  // give wascally some time to 
-  // batch things up and complete
-  var async = new Async(this);
+  describe("when the subscriber handler throws an error", function(){
+    var async = new Async(this);
+
+    var pub, sub, err;
+    var pubHandled, subHandled;
+    var publishMessage;
+    var nacked = false;
+    var handlerError = new Error("error handling message");
+
+    async.beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: ex1,
+        messageType: msgType1,
+        autoDelete: true
+      });
+      pub.on("error", reportErr);
+
+      sub = new Subscriber(rabbit, {
+        exchange: ex1,
+        queue: q1,
+        messageType: msgType1,
+        autoDelete: true
+      });
+
+      sub.subscribe(function(data){
+        throw handlerError;
+      });
+
+      function pubIt(){
+        pub.publish(msg1);
+      }
+
+      sub.on("ready", pubIt);
+
+      sub.on("error", function(ex){
+        err = ex;
+        done();
+      });
+
+      sub.on("nack", function(){
+        nacked = true;
+      });
+
+    });
+
+    it("should raise an error event", function(){
+      expect(err).toBe(handlerError);
+    });
+
+    it("should nack the message", function(){
+      expect(nacked).toBe(true);
+    });
+
+  });
+
   async.afterEach(function(done){
     setTimeout(function(){
-      done();
+      rabbit.closeAll().then(function(){
+        done();
+      }).then(null, function(err){
+        reportErr(err);
+      });
     },500);
   });
 
