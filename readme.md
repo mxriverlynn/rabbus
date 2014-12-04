@@ -55,6 +55,20 @@ of the repository.
 Please see the [Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
 on configuring RabbitMQ.
 
+### General Error Handling
+
+In general, each of the objects in Rabbus will emit an "error"
+message when an error occurs. You can use standard NodeJS
+EventEmitter functions to subscribe / unsubscribe the error
+events.
+
+```js
+var sub = new Subscriber(...);
+sub.on("error", function(err){
+  // do something with the err object, here
+});
+```
+
 ### Send / Receive
 
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
