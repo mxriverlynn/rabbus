@@ -90,7 +90,7 @@ function SomeSender(rabbus){
 
 util.inherits(SomeSender, Rabbus.Sender);
 
-var sender = new SomeSender(Rabbit);
+var sender = new SomeSender(Rabbus);
 var message = {
   place: "world"
 };
@@ -117,7 +117,7 @@ function SomeReceiver(rabbus){
 
 util.inherits(SomeReceiver, Rabbus.Receiver);
 
-var receiver = new SomeReceiver(Rabbit);
+var receiver = new SomeReceiver(Rabbus);
 
 receiver.receive(function(message, done){
   console.log("hello", message.place);
@@ -150,7 +150,7 @@ var options = {
 
 var message = { place: "world" };
 
-var sender = new SomeSender(Rabbit);
+var sender = new SomeSender(Rabbus);
 sender.send(message, options, function(){
   console.log("sent a message with a correlationId:", options.correlationId);
 });
@@ -158,7 +158,7 @@ sender.send(message, options, function(){
 // receiver
 // --------
 
-var receiver = new SomeReceiver(Rabbit);
+var receiver = new SomeReceiver(Rabbus);
 
 receiver.receive(options, function(message, done){
   console.log("hello", message.place, " - with correlationId:", options.correlationId);
@@ -193,7 +193,7 @@ function SomePublisher(rabbus){
 
 util.inherits(SomePublisher, Rabbus.Publisher);
 
-var publisher = new SomePublisher(Rabbit);
+var publisher = new SomePublisher(Rabbus);
 var message = {
   place: "world"
 };
@@ -220,17 +220,17 @@ function SomeSubscriber(rabbus){
 
 util.inherits(SomeSubscriber, Rabbus.Subscriber);
 
-var sub1 = new SomeSubscriber(Rabbit);
+var sub1 = new SomeSubscriber(Rabbus);
 sub1.subscribe(function(message){
   console.log("1: hello", message.place);
 });
 
-var sub2 = new SomeSubscriber(Rabbit);
+var sub2 = new SomeSubscriber(Rabbus);
 sub2.subscribe(function(message){
   console.log("2: hello", message.place);
 });
 
-var sub3 = new SomeSubscriber(Rabbit);
+var sub3 = new SomeSubscriber(Rabbus);
 sub3.subscribe(function(message){
   console.log("3: hello", message.place);
 });
@@ -262,7 +262,7 @@ function SomeRequester(rabbus){
 
 util.inherits(SomeRequester, Rabbus.Requester);
 
-var requester = new SomeRequester(Rabbit);
+var requester = new SomeRequester(Rabbus);
 
 var msg = {};
 requester.request(msg, function(response, done){
@@ -289,7 +289,7 @@ function SomeResponder(rabbus){
 
 util.inherits(SomeResponder, Rabbus.Responder);
 
-var responder = new SomeResponder(Rabbit);
+var responder = new SomeResponder(Rabbus);
 
 responder.handle(function(message, respond){
   respond({
