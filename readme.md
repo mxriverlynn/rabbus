@@ -305,6 +305,24 @@ requester to receive the response and do something with it.
 Also note the "limit" option for the Resonder. This is the "prefetch" limit
 for the queue, allowing you to limit the amount of work being done concurrently.
 
+## Limit Message Processing
+
+If you need to limit the number of messages being processed by any given
+messgae handler, you can specify a `limit` in the configuration.
+
+```
+function SomeSubscriber(rabbus){
+  Rabbus.Subscriber.call(this, rabbus, {
+    // ...
+    limit: 1
+  });
+}
+```
+
+This will limit your `SomeSubscriber` to only working on one message at a time.
+When your processing code calls `done`, the next message will be picked up
+and processed.
+
 ## Legalese
 
 Unless otherwise noted, Rabbus is Copyright &copy;2014 Muted Solutions, LLC. All Rights Reserved. 
