@@ -95,6 +95,7 @@ Receiver.prototype.receive = function(options, cb){
     console.log("receiving from", queue, messageType);
     that.emit("ready");
     that.handler = rabbit.handle(messageType, function(msg){
+      if (msg._Rabbus_Handled) { return; }
 
       function rejectMessage(){
         that.emit("nack");
@@ -102,6 +103,8 @@ Receiver.prototype.receive = function(options, cb){
       }
 
       function handleMessage(){
+        msg._Rabbus_Handled = true;
+
         function done(){
           msg.ack();
           that.emit("ack");

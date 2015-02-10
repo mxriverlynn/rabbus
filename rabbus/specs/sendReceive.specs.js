@@ -13,8 +13,6 @@ function reportErr(err){
 }
 
 describe("send / receive", function(){
-  var msg1 = {foo: "bar"};
-  var msg2 = {baz: "quux"};
   var msgType1 = "send-receive.messageType.1";
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";
@@ -34,11 +32,13 @@ describe("send / receive", function(){
   describe("given a receiver in place, when sending a message", function(){
     var async = new Async(this);
 
-    var send, rec;
+    var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;
 
     async.beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -78,11 +78,13 @@ describe("send / receive", function(){
   describe("when sending a message with a correlationId", function(){
     var async = new Async(this);
 
-    var send, rec;
+    var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;
 
     async.beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -125,11 +127,13 @@ describe("send / receive", function(){
   describe("when waiting for a different correlationId than was sent", function(){
     var async = new Async(this);
 
-    var send, rec, nacked;
+    var msg, send, rec, nacked;
     var sendHandled, recHandled;
     var sendMessage;
 
     async.beforeEach(function(done){
+      msg = {foo: "bar"};
+
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -157,7 +161,7 @@ describe("send / receive", function(){
         var correlationIdOptions = {
           correlationId: "foo-bar"
         };
-        send.send(msg1, correlationIdOptions);
+        send.send(msg, correlationIdOptions);
       }
 
       rec.on("ready", sendIt);
@@ -177,11 +181,13 @@ describe("send / receive", function(){
   describe("when sending a message w/ a correlationId, and receiving with no correlationId specified", function(){
     var async = new Async(this);
 
-    var send, rec, sendMessage;
+    var msg1, send, rec, sendMessage;
     var sendHandled, recHandled;
     var nacked = false;
 
     async.beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -229,13 +235,15 @@ describe("send / receive", function(){
   describe("when a receiver throws an error", function(){
     var async = new Async(this);
 
-    var send, rec, err;
+    var msg1, send, rec, err;
     var sendHandled, recHandled;
     var sendMessage;
     var nacked = false;
     var handlerError = new Error("error handling message");
 
     async.beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
       send = new Sender(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -281,7 +289,6 @@ describe("send / receive", function(){
       expect(nacked).toBe(true);
     });
   });
-
 
   async.afterEach(function(done){
     setTimeout(function(){
