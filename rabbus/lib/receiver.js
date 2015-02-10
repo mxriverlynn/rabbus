@@ -2,6 +2,7 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 var _ = require("underscore");
+var correlationId = require("./correlationId");
 
 // Receiver
 // --------
@@ -114,23 +115,16 @@ Receiver.prototype.receive = function(options, cb){
         }
       }
 
-      var msgHasCorrId = (!!msg.properties.correlationId);
-      var corrIdMatches = (msg.properties.correlationId === options.correlationId);
-
-      if (msgHasCorrId) {
-        // receiving for correlationId. does it match?
-        if (corrIdMatches) {
-          // yes, it matches so handle it
+      var msgCorrId = msg.properties.correlationId;
+      var expectedCorrId = options.correlationId;
+      correlationId.resolve(expectedCorrId, msgCorrId, function(result){
+        if (result.success){
           handleMessage();
         } else {
-          // no, it doesn't match. reject it.
           rejectMessage();
         }
-      } else {
-        // not receiveing for a correlationId,
-        // go ahead and handle it
-        handleMessage();
-      }
+      });
+
     });
 
     rabbit.startSubscription(queue);

@@ -10,25 +10,25 @@ module.exports = function(grunt) {
         specNameMatcher: "[Ss]pecs",
         useHelpers: true,
         helpers : [
-          "specs/helpers/**/*.js"
+          "rabbus/specs/helpers/**/*.js"
         ],
         jUnit: { report: false }
       },
 
       rabbus: {
-        src: ["specs/**/*.specs.js"]
+        src: ["rabbus/specs/**/*.specs.js"]
       }
     },
 
     jshint: {
       rabbus: {
-        src: ["lib/**/*.js"],
+        src: ["rabbus/lib/**/*.js"],
         options: {
           jshintrc: ".jshintrc"
         }
       },
       specs: {
-        src: ["specs/**/*.js"],
+        src: ["rabbus/specs/**/*.js"],
         options: {
           jshintrc: ".jshintrc-specs"
         }
@@ -37,12 +37,12 @@ module.exports = function(grunt) {
 
     watch: {
       rabbus: {
-        files: "lib/**/*.js",
+        files: "rabbus/lib/**/*.js",
         tasks: ["specs"]
       },
 
       specs: {
-        files: "specs/**/*.js",
+        files: "rabbus/specs/**/*.js",
         tasks: ["specs"]
       }
     }
