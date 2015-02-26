@@ -12,6 +12,7 @@ function Responder(rabbit, options){
   this.messageType = options.messageType;
   this.limit = options.limit;
   this.autoDelete = !!options.autoDelete;
+  this.forceAck = !!options.forceAck;
 
   var key = options.routingKey || this.messageType;
   this.routingKey = [].concat(key);
@@ -76,6 +77,7 @@ Responder.prototype.handle = function(cb){
   var rabbit = this.rabbit;
   var queue = this.queue;
   var messageType = this.messageType;
+  var forceAck = this.forceAck;
 
   this._start().then(function(){
 
@@ -84,6 +86,9 @@ Responder.prototype.handle = function(cb){
     that.handler = rabbit.handle(messageType, function(message){
       function respond(response){
         message.reply(response);
+        if (forceAck){
+          rabbit.batchAck();
+        }
         that.emit("reply");
       }
 
