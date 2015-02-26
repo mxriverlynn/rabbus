@@ -323,6 +323,29 @@ This will limit your `SomeSubscriber` to only working on one message at a time.
 When your processing code calls `done`, the next message will be picked up
 and processed.
 
+## Force Message Acknowledgement
+
+The default behavior of Wascally is to batch process `msg.ack()` calls. While
+this is beneficial in many cases, it can cause problems. If you need to force
+acknowledgement of individual messages, this can be done using the `forceAck`
+option in Rabbus' constructors. This option will call Wascally's `batchAck()`
+after each `msg.ack()` is called.
+
+```js
+var Subscriber = new Rabbus.Subscriber({
+  // ...
+
+  forceAck: true
+});
+```
+
+The following Rabbus objects provide the `forceAck` feature:
+
+* Rabbus.Receiver
+* Rabbus.Subscriber
+* Rabbus.Requester (force ack on response message)
+* Rabbus.Responder (force ack on request message);
+
 ## Legalese
 
 Unless otherwise noted, Rabbus is Copyright &copy;2014 Muted Solutions, LLC. All Rights Reserved. 
