@@ -11,6 +11,7 @@ function Requester(rabbit, options){
   this.messageType = options.messageType;
   this.autoDelete = !!options.autoDelete;
   this.routingKey = options.routingKey || this.messageType;
+  this.forceAck = !!options.forceAck;
 }
 
 util.inherits(Requester, Events.EventEmitter);
@@ -45,6 +46,7 @@ Requester.prototype.request = function(data, cb){
   var exchange = this.exchange;
   var messageType = this.messageType;
   var routingKey = this.routingKey;
+  var forceAck = this.forceAck;
 
   this._start().then(function(){
     that.emit("ready");
@@ -56,6 +58,9 @@ Requester.prototype.request = function(data, cb){
     }).then(function(reply){
       cb(reply.body);
       reply.ack();
+      if (forceAck){
+        rabbit.batchAck();
+      }
     }).then(null, function(err){
       that.emitError(err);
     });

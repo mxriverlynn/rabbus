@@ -14,6 +14,7 @@ function Receiver(rabbit, options){
   this.messageType = options.messageType;
   this.autoDelete = !!options.autoDelete;
   this.limit = options.limit;
+  this.forceAck = !!options.forceAck;
 
   var key = options.routingKey || "default";
   this.routingKey = [].concat(key);
@@ -89,6 +90,7 @@ Receiver.prototype.receive = function(options, cb){
   var rabbit = this.rabbit;
   var queue = this.queue;
   var messageType = this.messageType;
+  var forceAck = this.forceAck;
 
   this._start().then(function(){
 
@@ -100,6 +102,9 @@ Receiver.prototype.receive = function(options, cb){
       function rejectMessage(){
         that.emit("nack");
         msg.nack();
+        if (forceAck){
+          rabbit.batchAck();
+        }
       }
 
       function handleMessage(){
