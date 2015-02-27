@@ -14,7 +14,7 @@ function Receiver(rabbit, options){
   this.messageType = options.messageType;
   this.autoDelete = !!options.autoDelete;
   this.limit = options.limit;
-  this.forceAck = !!options.forceAck;
+  this.noBatch = !!options.noBatch;
 
   var key = options.routingKey || "default";
   this.routingKey = [].concat(key);
@@ -36,6 +36,7 @@ Receiver.prototype._start = function(){
   var queue = this.queue;
   var routingKey = this.routingKey;
   var autoDelete = this.autoDelete;
+  var noBatch = this.noBatch;
   var limit = this.limit;
 
   this._startPromise = when.promise(function(resolve, reject){
@@ -43,7 +44,8 @@ Receiver.prototype._start = function(){
     var queueOptions = {
       durable: true,
       autoDelete: autoDelete,
-      subscribe: false
+      subscribe: false,
+      noBatch: noBatch
     };
 
     if (limit) {
@@ -90,7 +92,7 @@ Receiver.prototype.receive = function(options, cb){
   var rabbit = this.rabbit;
   var queue = this.queue;
   var messageType = this.messageType;
-  var forceAck = this.forceAck;
+  var noBatch = this.noBatch;
 
   this._start().then(function(){
 
@@ -102,9 +104,6 @@ Receiver.prototype.receive = function(options, cb){
       function rejectMessage(){
         that.emit("nack");
         msg.nack();
-        if (forceAck){
-          rabbit.batchAck();
-        }
       }
 
       function handleMessage(){

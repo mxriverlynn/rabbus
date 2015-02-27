@@ -12,7 +12,7 @@ function Subscriber(rabbit, options){
   this.messageType = options.messageType;
   this.autoDelete = !!options.autoDelete;
   this.limit = options.limit;
-  this.forceAck = !!options.forceAck;
+  this.noBatch = !!options.noBatch;
 }
 
 util.inherits(Subscriber, Events.EventEmitter);
@@ -31,12 +31,14 @@ Subscriber.prototype._start = function(){
   var exchange = this.exchange;
   var autoDelete = this.autoDelete;
   var limit = this.limit;
+  var noBatch = this.noBatch;
 
   this._startPromise = when.promise(function(resolve, reject){
     var queueOptions = {
       durable: true,
       autoDelete: autoDelete,
-      subscribe: false
+      subscribe: false,
+      noBatch: noBatch
     };
 
     if (limit) {
@@ -76,7 +78,6 @@ Subscriber.prototype.subscribe = function(cb){
   var rabbit = this.rabbit;
   var queue = this.queue;
   var messageType = this.messageType;
-  var forceAck = this.forceAck;
 
   this._start().then(function(){
 
@@ -85,9 +86,6 @@ Subscriber.prototype.subscribe = function(cb){
       try {
         cb(msg.body);
         msg.ack();
-        if (forceAck){
-          rabbit.batchAck();
-        }
         that.emit("ack");
       } catch(ex) {
         msg.nack();
