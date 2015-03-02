@@ -1,3 +1,6 @@
+var util = require("util");
+util.print = process.stdout.write;
+
 module.exports = function(grunt) {
   grunt.initConfig({
 
