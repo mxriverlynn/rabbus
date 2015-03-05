@@ -1,13 +1,13 @@
 var util = require("util");
 var Rabbit = require("wascally");
 
-var Rabbus = require("../../index");
-var config = require("../../specs/config");
+var Rabbus = require("../../rabbus");
+var config = require("../../rabbus/specs/config");
 
 Rabbit.configure({
   connection: config
 }).then(function(){;
-  
+
   function SomeReceiver(rabbus){
     Rabbus.Receiver.call(this, rabbus, {
       exchange: "send-rec.exchange",

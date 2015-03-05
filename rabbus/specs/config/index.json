@@ -1,6 +1,5 @@
 {
   "server": "localhost",
-  "port": 15672,
   "vhost": "/rabbus-specs",
   "user": "rabbus",
   "pass": "rabbus"
