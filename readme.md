@@ -125,51 +125,6 @@ receiver.receive(function(message, done){
 });
 ```
 
-#### Using a CorrelationID with Send/Receive
-
-The Send/Receive pair optionally allows a `correlationId` to be passed in 
-through an options object literal, with the `send` and `receive` methods,
-respectively. Providing a `correlationId` on the send side of things requies
-a `receive` request to state the same correlationId. If an incorrect
-correlationId, or no correlationId, is specified, then the receiver will "nack"
-the message, sending it back to the queue.
-
-Using the `SomeSender` and `SomeReceiver` defined above, you can specify
-a correlationId to match between them.
-
-```js
-// options with correlationId
-// --------------------------
-
-var options = {
-  correlationId: "some-correlation-id"
-};
-
-// sender
-// ------
-
-var message = { place: "world" };
-
-var sender = new SomeSender(Rabbus);
-sender.send(message, options, function(){
-  console.log("sent a message with a correlationId:", options.correlationId);
-});
-
-// receiver
-// --------
-
-var receiver = new SomeReceiver(Rabbus);
-
-receiver.receive(options, function(message, done){
-  console.log("hello", message.place, " - with correlationId:", options.correlationId);
-  done();
-});
-```
-
-A correlationId can be used with any given Send/Receive pair, but you should
-consider having specific queues / exchange bindings to prevent accidental
-handling of the correlated message by other handlers.
-
 ### Publish / Subscribe
 
 The Publish / Subscribe object pair uses a fanout exchange inside of RabbitMQ, 

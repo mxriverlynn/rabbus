@@ -2,7 +2,6 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 var _ = require("underscore");
-var correlationId = require("./correlationId");
 
 // Receiver
 // --------
@@ -99,38 +98,23 @@ Receiver.prototype.receive = function(options, cb){
     console.log("receiving from", queue, messageType);
     that.emit("ready");
     that.handler = rabbit.handle(messageType, function(msg){
-      if (msg._Rabbus_Handled) { return; }
 
       function rejectMessage(){
         that.emit("nack");
         msg.nack();
       }
 
-      function handleMessage(){
-        msg._Rabbus_Handled = true;
-
-        function done(){
-          msg.ack();
-          that.emit("ack");
-        }
-
-        try {
-          cb(msg.body, done);
-        } catch(ex) {
-          rejectMessage();
-          that.emitError(ex);
-        }
+      function done(){
+        msg.ack();
+        that.emit("ack");
       }
 
-      var msgCorrId = msg.properties.correlationId;
-      var expectedCorrId = options.correlationId;
-      correlationId.resolve(expectedCorrId, msgCorrId, function(result){
-        if (result.success){
-          handleMessage();
-        } else {
-          rejectMessage();
-        }
-      });
+      try {
+        cb(msg.body, done);
+      } catch(ex) {
+        rejectMessage();
+        that.emitError(ex);
+      }
 
     });
 

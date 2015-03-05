@@ -3,7 +3,6 @@ var rabbit = require("wascally");
 
 var Requester = require("../lib/requester");
 var Responder = require("../lib/responder");
-var config = require("./config");
 
 function reportErr(err){
   setImmediate(function(){
@@ -19,17 +18,6 @@ describe("request / response", function(){
   var routingKey = "req-res.key";
   var ex1 = "req-res.ex";
   var q1 = "req-res.q";
-
-  var async = new Async(this);
-  async.beforeEach(function(done){
-    rabbit.configure({
-      connection: config
-    }).then(function(){
-      done();
-    }).then(null, function(err){
-      reportErr(err);
-    });
-  });
 
   describe("when making a request, and a response is sent back", function(){
     var async = new Async(this);
@@ -139,16 +127,6 @@ describe("request / response", function(){
     it("should nack the message", function(){
       expect(nacked).toBe(true);
     });
-  });
-
-  async.afterEach(function(done){
-    setTimeout(function(){
-      rabbit.closeAll().then(function(){
-        done();
-      }).then(null, function(err){
-        reportErr(err);
-      });
-    },500);
   });
 
 });

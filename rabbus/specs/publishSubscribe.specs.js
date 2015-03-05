@@ -3,7 +3,6 @@ var rabbit = require("wascally");
 
 var Publisher = require("../lib/publisher");
 var Subscriber = require("../lib/subscriber");
-var config = require("./config");
 
 function reportErr(err){
   setImmediate(function(){
@@ -18,17 +17,6 @@ describe("publish / subscribe", function(){
   var msgType1 = "pub-sub.messageType.1";
   var ex1 = "pub-sub.ex.1";
   var q1 = "pub-sub.q.1";
-
-  var async = new Async(this);
-  async.beforeEach(function(done){
-    rabbit.configure({
-      connection: config
-    }).then(function(){
-      done();
-    }).then(null, function(err){
-      reportErr(err);
-    });
-  });
 
   describe("when publishing a message with a subscriber", function(){
     var async = new Async(this);
@@ -124,16 +112,6 @@ describe("publish / subscribe", function(){
       expect(nacked).toBe(true);
     });
 
-  });
-
-  async.afterEach(function(done){
-    setTimeout(function(){
-      rabbit.closeAll().then(function(){
-        done();
-      }).then(null, function(err){
-        reportErr(err);
-      });
-    },500);
   });
 
 });

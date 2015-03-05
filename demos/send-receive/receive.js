@@ -7,7 +7,7 @@ var config = require("../../rabbus/specs/config");
 Rabbit.configure({
   connection: config
 }).then(function(){;
-
+  
   function SomeReceiver(rabbus){
     Rabbus.Receiver.call(this, rabbus, {
       exchange: "send-rec.exchange",
