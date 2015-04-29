@@ -12,6 +12,7 @@
   "browser": true,
   "strict": false,
   "globalstrict": true,
+  "latedef": false,
   "globals": {
     "console": true,
     "require": true,

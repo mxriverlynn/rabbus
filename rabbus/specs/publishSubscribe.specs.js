@@ -23,9 +23,11 @@ describe("publish / subscribe", function(){
 
     beforeEach(function(done){
       pub = new Publisher(rabbit, {
-        exchange: ex1,
-        messageType: msgType1,
-        autoDelete: true
+        exchange: {
+          name: ex1,
+          autoDelete: true
+        },
+        messageType: msgType1
       });
       pub.on("error", reportErr);
 
@@ -64,9 +66,11 @@ describe("publish / subscribe", function(){
 
     beforeEach(function(done){
       pub = new Publisher(rabbit, {
-        exchange: ex1,
-        messageType: msgType1,
-        autoDelete: true
+        exchange: {
+          name: ex1,
+          autoDelete: true
+        },
+        messageType: msgType1
       });
       pub.on("error", reportErr);
 

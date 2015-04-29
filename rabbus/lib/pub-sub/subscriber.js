@@ -7,9 +7,9 @@ var when = require("when");
 
 function Subscriber(rabbit, options){
   this.rabbit = rabbit;
+  this.options = options;
+
   this.queue = options.queue;
-  this.exchange = options.exchange;
-  this.messageType = options.messageType;
   this.autoDelete = !!options.autoDelete;
   this.limit = options.limit;
   this.noBatch = !!options.noBatch;
@@ -28,7 +28,7 @@ Subscriber.prototype._start = function(){
   var that = this;
   var rabbit = this.rabbit;
   var queue = this.queue;
-  var exchange = this.exchange;
+  var exchange = this.options.exchange;
   var autoDelete = this.autoDelete;
   var limit = this.limit;
   var noBatch = this.noBatch;
@@ -77,7 +77,7 @@ Subscriber.prototype.subscribe = function(cb){
   var that = this;
   var rabbit = this.rabbit;
   var queue = this.queue;
-  var messageType = this.messageType;
+  var messageType = this.options.messageType;
 
   this._start().then(function(){
 

@@ -69,7 +69,7 @@ sub.on("error", function(err){
 });
 ```
 
-### Send / Receive
+## Send / Receive
 
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
 allowing you to specify the binding key.
@@ -125,14 +125,14 @@ receiver.receive(function(message, done){
 });
 ```
 
-### Publish / Subscribe
+## Publish / Subscribe
 
 The Publish / Subscribe object pair uses a fanout exchange inside of RabbitMQ, 
 allowing you to have as many subscribers as you need. Think of pub/sub as an
 event that gets broadcast to anyone that cares, or no one at all if no one is
 listening.
 
-Set up a Publisher:
+### Set Up A Publisher
 
 ```js
 var util = require("util");
@@ -157,14 +157,25 @@ publisher.publish(message, function(){
   console.log("published an event!");
 });
 ```
+### Publisher Options
 
-Set up a Subscriber:
+The following options are available when configuring a publisher:
+
+* **exchange** (string): name of the exchange to create and publish to
+* **exchange** (object): object literal with options for the exchange
+  * **name** (string): name of the exchange to create and publish to
+  * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
+  * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
+  * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
+* **messageType** (string): the type of message being published
+
+### Set Up A Subscriber
 
 ```js
 var util = require("util");
 var Rabbus = require("rabbus");
 
-function SomeSubscriber(rabbus){
+function SomeSubscriber(){
   Rabbus.Subscriber.call(this, rabbus, {
     exchange: "pub-sub.exchange",
     queue: "pub-sub.queue",
@@ -175,23 +186,29 @@ function SomeSubscriber(rabbus){
 
 util.inherits(SomeSubscriber, Rabbus.Subscriber);
 
-var sub1 = new SomeSubscriber(Rabbus);
+// ... 
+
+var sub1 = new SomeSubscriber();
 sub1.subscribe(function(message){
   console.log("1: hello", message.place);
 });
 
-var sub2 = new SomeSubscriber(Rabbus);
+var sub2 = new SomeSubscriber();
 sub2.subscribe(function(message){
   console.log("2: hello", message.place);
 });
 
-var sub3 = new SomeSubscriber(Rabbus);
+var sub3 = new SomeSubscriber();
 sub3.subscribe(function(message){
   console.log("3: hello", message.place);
 });
 ```
 
-### Request / Response
+### Subscriber Options
+
+
+
+## Request / Response
 
 The request/response pair uses a "topic" exchange. You should set the
 routing key via the "routingKey" parameter, but it will default to the 

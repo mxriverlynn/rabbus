@@ -13,6 +13,7 @@
   "strict": false,
   "globalstrict": true,
   "debug": true,
+  "latedef": false,
   "globals": {
     "describe": true,
     "fdescribe": true,
