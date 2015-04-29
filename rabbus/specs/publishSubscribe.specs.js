@@ -33,9 +33,11 @@ describe("publish / subscribe", function(){
 
       sub = new Subscriber(rabbit, {
         exchange: ex1,
-        queue: q1,
         messageType: msgType1,
-        autoDelete: true
+        queue: {
+          name: q1,
+          autoDelete: true
+        }
       });
       sub.on("error", reportErr);
 
@@ -76,9 +78,11 @@ describe("publish / subscribe", function(){
 
       sub = new Subscriber(rabbit, {
         exchange: ex1,
-        queue: q1,
         messageType: msgType1,
-        autoDelete: true
+        queue: {
+          name: q1,
+          autoDelete: true
+        }
       });
 
       sub.subscribe(function(data){
@@ -109,7 +113,6 @@ describe("publish / subscribe", function(){
     it("should nack the message", function(){
       expect(nacked).toBe(true);
     });
-
   });
 
 });

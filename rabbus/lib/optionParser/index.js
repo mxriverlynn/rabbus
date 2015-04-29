@@ -5,25 +5,45 @@ var _ = require("underscore");
 
 var OptionParser = {
 
-  publisher: function(originalOptions){
-    var options = deepClone(originalOptions);
+  parse: function(options, defaults){
+    defaults = defaults || {};
+    options = deepClone(options);
 
-    if (_.isString(options.exchange)){
+    options = this.parseExchange(options, defaults.exchange);
+    
+    return options;
+  },
+
+  parseExchange: function(options, defaults){
+    if (!_.isObject(options.exchange)){
       var exchangeName = options.exchange;
       options.exchange = {
         name: exchangeName
       };
     }
 
-    options.exchange = _.defaults(options.exchange, {
-      durable: true,
-      persistent: true,
-      autoDelete: !!options.exchange.autoDelete
+    options.exchange = _.defaults(options.exchange, defaults);
+    return options;
+  },
+
+  subscriber: function(originalOptions){
+    var options = deepClone(originalOptions);
+
+    if (_.isString(options.queue)){
+      var queueName = options.queueName;
+      options.queue = {
+        name: queueName
+      };
+    }
+
+    options.queue = _.defaults(options.queue, {
+      autoDelete: false,
+      limit: options.limit,
+      noBatch: false
     });
 
     return options;
   }
-
 };
 
 // Helpers

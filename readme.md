@@ -157,6 +157,7 @@ publisher.publish(message, function(){
   console.log("published an event!");
 });
 ```
+
 ### Publisher Options
 
 The following options are available when configuring a publisher:

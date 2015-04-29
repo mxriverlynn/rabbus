@@ -2,6 +2,8 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var Builders = require("../builders");
+
 // Subscriber
 // --------
 
@@ -9,10 +11,12 @@ function Subscriber(rabbit, options){
   this.rabbit = rabbit;
   this.options = options;
 
-  this.queue = options.queue;
-  this.autoDelete = !!options.autoDelete;
-  this.limit = options.limit;
-  this.noBatch = !!options.noBatch;
+  // this.queue = options.queue;
+  // this.exchange = options.exchange;
+  // this.messageType = options.messageType;
+  // this.autoDelete = !!options.autoDelete;
+  // this.limit = options.limit;
+  // this.noBatch = !!options.noBatch;
 }
 
 util.inherits(Subscriber, Events.EventEmitter);
@@ -27,11 +31,12 @@ Subscriber.prototype._start = function(){
 
   var that = this;
   var rabbit = this.rabbit;
-  var queue = this.queue;
-  var exchange = this.options.exchange;
-  var autoDelete = this.autoDelete;
+  var queueName = this.options.queue.name;
+  var autoDelete = this.options.queue.autoDelete;
+  var exchange = this.options.exchange.name;
   var limit = this.limit;
   var noBatch = this.noBatch;
+  var options = this.options;
 
   this._startPromise = when.promise(function(resolve, reject){
     var queueOptions = {
@@ -45,18 +50,15 @@ Subscriber.prototype._start = function(){
       queueOptions.limit = limit;
     }
 
-    var qP = rabbit.addQueue(queue, queueOptions);
+    var qP = rabbit.addQueue(queueName, queueOptions);
 
-    var exP = rabbit.addExchange(exchange, "fanout", {
-      durable: true,
-      persistent: true,
-      autoDelete: autoDelete
-    });
+    var exchangeBuilder = new Builders.Exchange(rabbit);
+    var exP = exchangeBuilder.build("fanout", options);
 
     when.all([exP, qP]).then(function(){
 
       that.rabbit
-        .bindQueue(exchange, queue)
+        .bindQueue(exchange, queueName)
         .then(function(){
           resolve();
         })
@@ -76,7 +78,7 @@ Subscriber.prototype._start = function(){
 Subscriber.prototype.subscribe = function(cb){
   var that = this;
   var rabbit = this.rabbit;
-  var queue = this.queue;
+  var queue = this.options.queue.name;
   var messageType = this.options.messageType;
 
   this._start().then(function(){
