@@ -87,7 +87,7 @@ Responder.prototype.handle = function(cb){
     that.handler = rabbit.handle(messageType, function(message){
       function respond(response){
         message.reply(response);
-        that.emit("reply");
+        that.emit("reply", response);
       }
 
       function reject(){

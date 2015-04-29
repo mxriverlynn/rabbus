@@ -15,9 +15,12 @@
   "debug": true,
   "globals": {
     "describe": true,
+    "fdescribe": true,
     "xdescribe": true,
     "it": true,
+    "fit": true,
     "xit": true,
+    "spyOn": true,
     "beforeEach": true,
     "afterEach": true,
     "expect": true,

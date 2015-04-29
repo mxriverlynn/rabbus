@@ -40,6 +40,9 @@ describe("request / response", function(){
         limit: 1,
         autoDelete: true
       });
+
+      spyOn(res, "emit").and.callThrough();
+
       res.on("error", reportErr);
 
       res.handle(function(data, respond){
@@ -63,6 +66,10 @@ describe("request / response", function(){
 
     it("should handle the response", function(){
       expect(responseMessage.baz).toBe(msg2.baz);
+    });
+
+    it("should emit a reply event with the response message", function(){
+      expect(res.emit).toHaveBeenCalledWith("reply", responseMessage);
     });
 
   });
