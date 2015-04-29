@@ -1,7 +1,7 @@
 var rabbit = require("wascally");
 
-var Requester = require("../lib/requester");
-var Responder = require("../lib/responder");
+var Requester = require("../lib/req-res/requester");
+var Responder = require("../lib/req-res/responder");
 
 function reportErr(err){
   setImmediate(function(){

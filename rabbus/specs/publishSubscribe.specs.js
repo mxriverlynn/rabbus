@@ -1,6 +1,6 @@
 var rabbit = require("wascally");
-var Publisher = require("../lib/publisher");
-var Subscriber = require("../lib/subscriber");
+var Publisher = require("../lib/pub-sub/publisher");
+var Subscriber = require("../lib/pub-sub/subscriber");
 
 function reportErr(err){
   setImmediate(function(){

@@ -1,7 +1,7 @@
 var rabbit = require("wascally");
 
-var Sender = require("../lib/sender");
-var Receiver = require("../lib/receiver");
+var Sender = require("../lib/send-rec/sender");
+var Receiver = require("../lib/send-rec/receiver");
 
 function reportErr(err){
   setImmediate(function(){
