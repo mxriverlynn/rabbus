@@ -1,6 +1,4 @@
-var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
-
 var Publisher = require("../lib/publisher");
 var Subscriber = require("../lib/subscriber");
 
@@ -19,13 +17,11 @@ describe("publish / subscribe", function(){
   var q1 = "pub-sub.q.1";
 
   describe("when publishing a message with a subscriber", function(){
-    var async = new Async(this);
-
     var pub, sub;
     var pubHandled, subHandled;
     var publishMessage;
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       pub = new Publisher(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -60,15 +56,13 @@ describe("publish / subscribe", function(){
   });
 
   describe("when the subscriber handler throws an error", function(){
-    var async = new Async(this);
-
     var pub, sub, err;
     var pubHandled, subHandled;
     var publishMessage;
     var nacked = false;
     var handlerError = new Error("error handling message");
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       pub = new Publisher(rabbit, {
         exchange: ex1,
         messageType: msgType1,

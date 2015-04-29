@@ -4,22 +4,25 @@ util.print = process.stdout.write.bind(process.stdout);
 module.exports = function(grunt) {
   grunt.initConfig({
 
-    jasmine_node: {
+    jasmine_nodejs: {
       options: {
-        forceExit: true,
-        match: ".",
-        matchall: false,
-        extensions: "js",
-        specNameMatcher: "[Ss]pecs",
-        useHelpers: true,
-        helpers : [
-          "rabbus/specs/helpers/**/*.js"
-        ],
-        jUnit: { report: false }
+         specNameSuffix: ".specs.js", // also accepts an array
+         helperNameSuffix: "Helpers.js",
+         useHelpers: true,
+         reporters: {
+           console: {
+             colors: true,
+             cleanStack: 1,       // (0|false)|(1|true)|2|3
+             verbosity: 3,        // (0|false)|1|2|(3|true)
+             listStyle: "indent", // "flat"|"indent"
+             activity: false
+           }
+         },
       },
 
       rabbus: {
-        src: ["rabbus/specs/**/*.specs.js"]
+        helpers: ["rabbus/specs/helpers/**"],
+        specs: ["rabbus/specs/**/*.specs.js"]
       }
     },
 
@@ -52,10 +55,10 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.loadNpmTasks("grunt-jasmine-node");
+  grunt.loadNpmTasks("grunt-jasmine-nodejs");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-contrib-jshint");
 
-  grunt.registerTask("specs", ["jshint", "jasmine_node"]);
+  grunt.registerTask("specs", ["jshint", "jasmine_nodejs"]);
   grunt.registerTask("default", ["jshint", "watch"]);
 };

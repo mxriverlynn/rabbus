@@ -1,4 +1,3 @@
-var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
 
 var Sender = require("../lib/sender");
@@ -18,13 +17,11 @@ describe("send / receive", function(){
   var rKey = "test.key";
 
   describe("given a receiver in place, when sending a message", function(){
-    var async = new Async(this);
-
     var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       msg1 = {foo: "bar"};
 
       send = new Sender(rabbit, {
@@ -64,15 +61,13 @@ describe("send / receive", function(){
   });
 
   describe("when a receiver throws an error", function(){
-    var async = new Async(this);
-
     var msg1, send, rec, err;
     var sendHandled, recHandled;
     var sendMessage;
     var nacked = false;
     var handlerError = new Error("error handling message");
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       msg1 = {foo: "bar"};
 
       send = new Sender(rabbit, {

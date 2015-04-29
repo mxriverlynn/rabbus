@@ -1,4 +1,3 @@
-var Async = require("node-jasmine-async");
 var rabbit = require("wascally");
 
 var Requester = require("../lib/requester");
@@ -20,13 +19,11 @@ describe("request / response", function(){
   var q1 = "req-res.q";
 
   describe("when making a request, and a response is sent back", function(){
-    var async = new Async(this);
-
     var req, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       req = new Requester(rabbit, {
         exchange: ex1,
         messageType: msgType1,
@@ -71,15 +68,13 @@ describe("request / response", function(){
   });
 
   describe("when a responder throws an error", function(){
-    var async = new Async(this);
-
     var req, res, err;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
     var nacked = false;
     var handlerError = new Error("error handling message");
 
-    async.beforeEach(function(done){
+    beforeEach(function(done){
       req = new Requester(rabbit, {
         exchange: ex1,
         messageType: msgType1,
