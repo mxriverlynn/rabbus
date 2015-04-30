@@ -2,6 +2,7 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var defaults = require("./defaults");
 var optionParser = require("../optionParser");
 
 // Base Publisher
@@ -9,7 +10,7 @@ var optionParser = require("../optionParser");
 
 function Publisher(rabbit, options){
   this.rabbit = rabbit;
-  this.options = optionParser.parse(options);
+  this.options = optionParser.parse(options, defaults);
 }
 
 util.inherits(Publisher, Events.EventEmitter);
@@ -22,7 +23,8 @@ Publisher.prototype._start = function(){
 
   var name = this.options.exchange.name;
   var type = this.options.exchange.type;
-  this._startPromise = this.wascally.addExchange(name, type, this.options.exchange);
+  this._startPromise = this.rabbit.addExchange(name, type, this.options.exchange);
+
   return this._startPromise;
 };
 

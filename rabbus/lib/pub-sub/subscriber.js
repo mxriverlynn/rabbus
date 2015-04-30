@@ -2,7 +2,8 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
-var Builders = require("../builders");
+var defaults = require("./defaults");
+var optionParser = require("../optionParser");
 
 // Subscriber
 // --------
@@ -10,13 +11,7 @@ var Builders = require("../builders");
 function Subscriber(rabbit, options){
   this.rabbit = rabbit;
   this.options = options;
-
-  // this.queue = options.queue;
-  // this.exchange = options.exchange;
-  // this.messageType = options.messageType;
-  // this.autoDelete = !!options.autoDelete;
-  // this.limit = options.limit;
-  // this.noBatch = !!options.noBatch;
+  this.options = optionParser.parse(options, defaults);
 }
 
 util.inherits(Subscriber, Events.EventEmitter);
@@ -31,34 +26,23 @@ Subscriber.prototype._start = function(){
 
   var that = this;
   var rabbit = this.rabbit;
-  var queueName = this.options.queue.name;
-  var autoDelete = this.options.queue.autoDelete;
-  var exchange = this.options.exchange.name;
-  var limit = this.limit;
-  var noBatch = this.noBatch;
   var options = this.options;
+  var queueOptions = options.queue;
+  var exchangeOptions = options.exchange;
 
   this._startPromise = when.promise(function(resolve, reject){
-    var queueOptions = {
-      durable: true,
-      autoDelete: autoDelete,
-      subscribe: false,
-      noBatch: noBatch
-    };
 
-    if (limit) {
-      queueOptions.limit = limit;
-    }
-
-    var qP = rabbit.addQueue(queueName, queueOptions);
-
-    var exchangeBuilder = new Builders.Exchange(rabbit);
-    var exP = exchangeBuilder.build("fanout", options);
+    var qP = rabbit.addQueue(queueOptions.name, queueOptions);
+    var exP = rabbit.addExchange(
+      exchangeOptions.name, 
+      exchangeOptions.type, 
+      exchangeOptions
+    );
 
     when.all([exP, qP]).then(function(){
 
-      that.rabbit
-        .bindQueue(exchange, queueName)
+      rabbit
+        .bindQueue(exchangeOptions.name, queueOptions.name, options.routingKeys)
         .then(function(){
           resolve();
         })

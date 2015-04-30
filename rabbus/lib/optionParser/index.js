@@ -10,6 +10,7 @@ var OptionParser = {
     options = deepClone(options);
 
     options = this.parseExchange(options, defaults.exchange);
+    options = this.parseQueue(options, defaults.queue);
     
     return options;
   },
@@ -26,22 +27,15 @@ var OptionParser = {
     return options;
   },
 
-  subscriber: function(originalOptions){
-    var options = deepClone(originalOptions);
-
-    if (_.isString(options.queue)){
-      var queueName = options.queueName;
+  parseQueue: function(options, defaults){
+    if (!_.isObject(options.queue)){
+      var queueName = options.queue;
       options.queue = {
         name: queueName
       };
     }
 
-    options.queue = _.defaults(options.queue, {
-      autoDelete: false,
-      limit: options.limit,
-      noBatch: false
-    });
-
+    options.queue = _.defaults(options.queue, defaults);
     return options;
   }
 };

@@ -11,3 +11,4 @@ npm-debug.log
 *.swo
 *.sw0
 *.orig
+*.dump

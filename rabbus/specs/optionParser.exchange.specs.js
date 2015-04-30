@@ -1,6 +1,6 @@
 var optionParser = require("../lib/optionParser");
 
-fdescribe("option parser", function(){
+describe("option parser", function(){
 
   describe("when given an exchange as a string", function(){
     var result;

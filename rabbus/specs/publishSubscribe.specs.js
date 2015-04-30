@@ -15,6 +15,10 @@ describe("publish / subscribe", function(){
   var msgType1 = "pub-sub.messageType.1";
   var ex1 = "pub-sub.ex.1";
   var q1 = "pub-sub.q.1";
+  var exConfig = {
+    name: ex1,
+    autoDelete: true
+  };
 
   describe("when publishing a message with a subscriber", function(){
     var pub, sub;
@@ -23,17 +27,15 @@ describe("publish / subscribe", function(){
 
     beforeEach(function(done){
       pub = new Publisher(rabbit, {
-        exchange: {
-          name: ex1,
-          autoDelete: true
-        },
+        exchange: exConfig,
         messageType: msgType1
       });
       pub.on("error", reportErr);
 
       sub = new Subscriber(rabbit, {
-        exchange: ex1,
+        exchange: exConfig,
         messageType: msgType1,
+        routingKeys: msgType1,
         queue: {
           name: q1,
           autoDelete: true
@@ -68,17 +70,15 @@ describe("publish / subscribe", function(){
 
     beforeEach(function(done){
       pub = new Publisher(rabbit, {
-        exchange: {
-          name: ex1,
-          autoDelete: true
-        },
+        exchange: exConfig,
         messageType: msgType1
       });
       pub.on("error", reportErr);
 
       sub = new Subscriber(rabbit, {
-        exchange: ex1,
+        exchange: exConfig,
         messageType: msgType1,
+        routingKeys: msgType1,
         queue: {
           name: q1,
           autoDelete: true
