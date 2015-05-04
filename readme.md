@@ -74,7 +74,7 @@ sub.on("error", function(err){
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
 allowing you to specify the binding key.
 
-Set up a Sender:
+### Set Up A Sender
 
 ```js
 var util = require("util");
@@ -100,7 +100,21 @@ sender.send(message, function(){
 });
 ```
 
-Set up a Receiver:
+### Sender Options
+
+The following options are available when configuring a sender:
+
+* **exchange** (string): name of the exchange to create and publish to
+* **exchange** (object): object literal with options for the exchange
+  * **name** (string): name of the exchange to create and publish to
+  * **type** (string): type of exchange to use. default is `direct`.
+  * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
+  * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
+  * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
+* **messageType** (string): the type of message being published
+* **routingKey** (string): the routing key to use for the published message
+
+### Set Up A Receiver
 
 ```js
 var util = require("util");
@@ -124,6 +138,21 @@ receiver.receive(function(message, done){
   done();
 });
 ```
+
+### Receiver Options
+
+See Sender options for Exchange definition. The exchange
+and queue that you specify in these options will be used to
+create the binding between the two.
+
+* **queue** (string): name of the queue to create and subscribe to
+* **queue** (object): object literal with options for the queue
+  * **name** (string): name of the queue to create and subscriber to
+  * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
+  * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
+* **messageType** (string): the type of message to handle for this subscriber instance
+* **routingKey** (string): the routing key to use for binding the exchange and queue
+* **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
 
 ## Publish / Subscribe
 
@@ -165,6 +194,7 @@ The following options are available when configuring a publisher:
 * **exchange** (string): name of the exchange to create and publish to
 * **exchange** (object): object literal with options for the exchange
   * **name** (string): name of the exchange to create and publish to
+  * **type** (string): type of exchange to use. default is `fanout`.
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
