@@ -18,6 +18,17 @@ describe("request / response", function(){
   var ex1 = "req-res.ex";
   var q1 = "req-res.q";
 
+  var exchangeConfig = {
+    name: ex1,
+    autoDelete: true
+  };
+
+  var queueConfig = {
+    name: q1,
+    autoDelete: true,
+    limit: 1
+  };
+
   describe("when making a request, and a response is sent back", function(){
     var req, res;
     var reqHandled, resHandled;
@@ -25,20 +36,17 @@ describe("request / response", function(){
 
     beforeEach(function(done){
       req = new Requester(rabbit, {
-        exchange: ex1,
+        exchange: exchangeConfig,
         messageType: msgType1,
         routingKey: routingKey,
-        autoDelete: true
       });
       req.on("error", reportErr);
 
       res = new Responder(rabbit, {
-        exchange: ex1,
-        queue: q1,
+        exchange: exchangeConfig,
+        queue: queueConfig,
         messageType: msgType1,
         routingKey: routingKey,
-        limit: 1,
-        autoDelete: true
       });
 
       spyOn(res, "emit").and.callThrough();
@@ -83,20 +91,17 @@ describe("request / response", function(){
 
     beforeEach(function(done){
       req = new Requester(rabbit, {
-        exchange: ex1,
+        exchange: exchangeConfig,
         messageType: msgType1,
         routingKey: routingKey,
-        autoDelete: true
       });
       req.on("error", reportErr);
 
       res = new Responder(rabbit, {
-        exchange: ex1,
-        queue: q1,
+        exchange: exchangeConfig,
+        queue: queueConfig,
         messageType: msgType1,
-        routingKey: routingKey,
-        limit: 1,
-        autoDelete: true
+        routingKey: routingKey
       });
 
       res.handle(function(data, respond){

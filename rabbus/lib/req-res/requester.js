@@ -2,15 +2,15 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var defaults = require("./defaults");
+var optionParser = require("../optionParser");
+
 // Base Requester
 // -----------
 
 function Requester(rabbit, options){
   this.rabbit = rabbit;
-  this.exchange = options.exchange;
-  this.messageType = options.messageType;
-  this.autoDelete = !!options.autoDelete;
-  this.routingKey = options.routingKey || this.messageType;
+  this.options = optionParser.parse(options, defaults);
 }
 
 util.inherits(Requester, Events.EventEmitter);
@@ -19,21 +19,13 @@ util.inherits(Requester, Events.EventEmitter);
 // ------------------------
 
 Requester.prototype._start = function(){
-  var rabbit = this.rabbit;
-  var exchange = this.exchange;
-  var autoDelete = this.autoDelete;
-
   if (this._startPromise){
     return this._startPromise;
   }
 
-  console.log("configuring requester for", exchange);
-
-  this._startPromise = rabbit.addExchange(exchange, "topic", {
-    durable: true,
-    persistent: true,
-    autoDelete: autoDelete
-  });
+  var exchange = this.options.exchange;
+  console.log("configuring requester for", exchange.name);
+  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
 
   return this._startPromise;
 };
@@ -42,14 +34,14 @@ Requester.prototype.request = function(data, cb){
   var that = this;
   var rabbit = this.rabbit;
 
-  var exchange = this.exchange;
-  var messageType = this.messageType;
-  var routingKey = this.routingKey;
+  var exchange = this.options.exchange;
+  var messageType = this.options.messageType;
+  var routingKey = this.options.routingKey;
 
   this._start().then(function(){
     that.emit("ready");
 
-    rabbit.request(exchange, {
+    rabbit.request(exchange.name, {
       routingKey: routingKey,
       type: messageType,
       body: data

@@ -2,20 +2,15 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var defaults = require("./defaults");
+var optionParser = require("../optionParser");
+
 // Responder
 // --------
 
 function Responder(rabbit, options){
   this.rabbit = rabbit;
-  this.queue = options.queue;
-  this.exchange = options.exchange;
-  this.messageType = options.messageType;
-  this.limit = options.limit;
-  this.autoDelete = !!options.autoDelete;
-  this.noBatch = !!options.noBatch;
-
-  var key = options.routingKey || this.messageType;
-  this.routingKey = [].concat(key);
+  this.options = optionParser.parse(options, defaults);
 }
 
 util.inherits(Responder, Events.EventEmitter);
@@ -25,40 +20,21 @@ util.inherits(Responder, Events.EventEmitter);
 
 Responder.prototype._start = function(){
   var rabbit = this.rabbit;
-  var exchange = this.exchange;
-  var queue = this.queue;
-  var autoDelete = this.autoDelete;
-  var routingKey = this.routingKey;
-  var limit = this.limit;
-  var noBatch = this.noBatch;
+  var exchange = this.options.exchange;
+  var queue = this.options.queue;
+  var routingKey = this.options.routingKey;
 
   if (this._startPromise){
     return this._startPromise;
   }
 
   this._startPromise = when.promise(function(resolve, reject){
-    var queueOptions = {
-      durable: true,
-      autoDelete: autoDelete,
-      subscribe: false,
-      noBatch: noBatch
-    };
-
-    if (limit) {
-      queueOptions.limit = limit;
-    }
-
-    var qP = rabbit.addQueue(queue, queueOptions);
-
-    var exP = rabbit.addExchange(exchange, "topic", {
-      durable: true,
-      persistent: true,
-      autoDelete: autoDelete
-    });
+    var qP = rabbit.addQueue(queue.name, queue);
+    var exP = rabbit.addExchange(exchange.name, exchange.type, exchange);
 
     when.all([qP, exP]).then(function(){
       rabbit
-        .bindQueue(exchange, queue, routingKey)
+        .bindQueue(exchange.name, queue.name, routingKey)
         .then(function(){
           resolve();
         })
@@ -77,13 +53,14 @@ Responder.prototype._start = function(){
 Responder.prototype.handle = function(cb){
   var that = this;
   var rabbit = this.rabbit;
-  var queue = this.queue;
-  var messageType = this.messageType;
+  var queue = this.options.queue;
+  var messageType = this.options.messageType;
 
   this._start().then(function(){
 
     that.emit("ready");
     console.log("listening for", messageType, "on", queue);
+
     that.handler = rabbit.handle(messageType, function(message){
       function respond(response){
         message.reply(response);
@@ -103,7 +80,7 @@ Responder.prototype.handle = function(cb){
         that.emitError(ex);
       }
     });
-    rabbit.startSubscription(queue);
+    rabbit.startSubscription(queue.name);
 
   }).then(null, function(err){
     that.emitError(err);

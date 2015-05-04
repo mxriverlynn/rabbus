@@ -145,6 +145,7 @@ See Sender options for Exchange definition. The exchange
 and queue that you specify in these options will be used to
 create the binding between the two.
 
+* **exchange**: (see Sender for options)
 * **queue** (string): name of the queue to create and subscribe to
 * **queue** (object): object literal with options for the queue
   * **name** (string): name of the queue to create and subscriber to
@@ -242,6 +243,7 @@ See Publisher options for Exchange definition. The exchange
 and queue that you specify in these options will be used to
 create the binding between the exchange and queue.
 
+* **exchange**: (see Publisher for options)
 * **queue** (string): name of the queue to create and subscribe to
 * **queue** (object): object literal with options for the queue
   * **name** (string): name of the queue to create and subscriber to
@@ -261,7 +263,7 @@ With a request/response setup, you can send a request for information and
 respond to it. A private, temporary queue will be created for the response
 message, ensuring that it gets back to the requester correctly.
 
-Set up a Requester
+### Set Up A Requester
 
 ```js
 var util = require("util");
@@ -286,7 +288,21 @@ requester.request(msg, function(response, done){
 });
 ```
 
-Set up a Responder:
+### Requester Options
+
+The following options are available when configuring a requester:
+
+* **exchange** (string): name of the exchange to create and publish to
+* **exchange** (object): object literal with options for the exchange
+  * **name** (string): name of the exchange to create and publish to
+  * **type** (string): type of exchange to use. default is `fanout`.
+  * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
+  * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
+  * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
+* **messageType** (string): the type of message being published
+* **routingKey** (string): the routing key to use for the published message
+
+### Set up a Responder
 
 ```js
 var util = require("util");
@@ -319,6 +335,22 @@ requester to receive the response and do something with it.
 
 Also note the "limit" option for the Resonder. This is the "prefetch" limit
 for the queue, allowing you to limit the amount of work being done concurrently.
+
+### Responder Options
+
+See Requester options for Exchange definition. The exchange
+and queue that you specify in these options will be used to
+create the binding between the two.
+
+* **exchange**: (see Requester for options)
+* **queue** (string): name of the queue to create and subscribe to
+* **queue** (object): object literal with options for the queue
+  * **name** (string): name of the queue to create and subscriber to
+  * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
+  * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
+* **messageType** (string): the type of message to handle for this subscriber instance
+* **routingKey** (string): the routing key to use for binding the exchange and queue
+* **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
 
 ## Limit Message Processing
 
