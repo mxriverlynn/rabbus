@@ -4,6 +4,7 @@ var when = require("when");
 
 var defaults = require("./defaults");
 var optionParser = require("../optionParser");
+var Shire = require("../shire");
 
 // Subscriber
 // --------
@@ -11,6 +12,7 @@ var optionParser = require("../optionParser");
 function Subscriber(rabbit, options){
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
+  this.middleware = new Shire();
 }
 
 util.inherits(Subscriber, Events.EventEmitter);
@@ -63,21 +65,30 @@ Subscriber.prototype.subscribe = function(cb){
   var rabbit = this.rabbit;
   var queue = this.options.queue.name;
   var messageType = this.options.messageType;
+  var middleware = this.middleware;
 
   this._start().then(function(){
 
     that.emit("ready");
-    rabbit.handle(messageType, function(msg){
-      try {
-        cb(msg.body);
-        msg.ack();
-        that.emit("ack");
-      } catch(ex) {
-        msg.nack();
-        that.emit("nack");
-        that.emitError(ex);
-      }
+
+    var handler = middleware.prepare(function(handler){
+      debugger;
+      handler.on("nack", that.emit.bind(that, "nack"));
+      handler.on("ack", that.emit.bind(that, "ack"));
+      handler.on("reject", that.emit.bind(that, "reject"));
+
+      handler.last(function(msg, handler){
+        try {
+          cb(msg);
+          handler.ack();
+        } catch(ex) {
+          handler.nack();
+          that.emitError(ex);
+        }
+      });
     });
+
+    rabbit.handle(messageType, handler);
     rabbit.startSubscription(queue);
 
   }).then(null, function(err){

@@ -9,7 +9,7 @@ function reportErr(err){
   });
 }
 
-describe("publish / subscribe", function(){
+fdescribe("publish / subscribe", function(){
   var msg1 = {foo: "bar"};
   var msg2 = {baz: "quux"};
   var msgType1 = "pub-sub.messageType.1";
@@ -61,7 +61,7 @@ describe("publish / subscribe", function(){
 
   });
 
-  describe("when the subscriber handler throws an error", function(){
+  fdescribe("when the subscriber handler throws an error", function(){
     var pub, sub, err;
     var pubHandled, subHandled;
     var publishMessage;

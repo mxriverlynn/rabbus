@@ -29,9 +29,6 @@ Receiver.prototype._start = function(){
   var exchangeOptions = this.options.exchange;
   var queueOptions = this.options.queue;
   var routingKey = this.options.routingKey;
-  var autoDelete = queueOptions.autoDelete;
-  var noBatch = queueOptions.noBatch;
-  var limit = queueOptions.limit;
 
   this._startPromise = when.promise(function(resolve, reject){
     var qP = rabbit.addQueue(queueOptions.name, queueOptions);
