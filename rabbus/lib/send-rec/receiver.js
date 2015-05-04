@@ -59,12 +59,7 @@ Receiver.prototype._start = function(){
   return this._startPromise;
 };
 
-Receiver.prototype.receive = function(options, cb){
-  if (!cb && _.isFunction(options)) {
-    cb = options;
-    options = {};
-  }
-
+Receiver.prototype.receive = function(cb){
   var that = this;
   var rabbit = this.rabbit;
   var queueOptions = this.options.queue;
