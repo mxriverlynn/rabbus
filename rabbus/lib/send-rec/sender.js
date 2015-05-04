@@ -3,15 +3,15 @@ var util = require("util");
 var when = require("when");
 var _ = require("underscore");
 
+var defaults = require("./defaults");
+var optionParser = require("../optionParser");
+
 // Base Sender
 // --------------
 
 function Sender(rabbit, options){
   this.rabbit = rabbit;
-  this.exchange = options.exchange;
-  this.messageType = options.messageType;
-  this.routingKey = options.routingKey || "default";
-  this.autoDelete = !!options.autoDelete;
+  this.options = optionParser.parse(options, defaults);
 }
 
 util.inherits(Sender, Events.EventEmitter);
@@ -24,11 +24,8 @@ Sender.prototype._start = function(){
     return this._startPromise;
   }
 
-  this._startPromise = this.rabbit.addExchange(this.exchange, "direct", {
-    durable: true,
-    persistent: true,
-    autoDelete: this.autoDelete
-  });
+  var exchange = this.options.exchange;
+  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
 
   return this._startPromise;
 };
@@ -42,15 +39,15 @@ Sender.prototype.send = function(data, options, done){
 
   var that = this;
   var rabbit = this.rabbit;
-  var exchange = this.exchange;
-  var messageType = this.messageType;
-  var routingKey = this.routingKey;
+  var exchange = this.options.exchange;
+  var messageType = this.options.messageType;
+  var routingKey = this.options.routingKey;
 
   this._start().then(function(){
     that.emit("ready");
-    console.log("sending message to", exchange);
+    console.log("sending message to", exchange.name);
 
-    rabbit.publish(exchange, {
+    rabbit.publish(exchange.name, {
       routingKey: routingKey,
       correlationId: options.correlationId,
       type: messageType,

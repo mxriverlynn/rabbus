@@ -1,6 +1,6 @@
-var PubSubDefaults = {
+var SendReceiveDefaults = {
   exchange: {
-    type: "fanout",
+    type: "direct",
     autoDelete: false,
     durable: true,
     persistent: true
@@ -14,4 +14,4 @@ var PubSubDefaults = {
   routingKey: [""]
 };
 
-module.exports = PubSubDefaults;
+module.exports = SendReceiveDefaults;

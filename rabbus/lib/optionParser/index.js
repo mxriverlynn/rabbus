@@ -16,32 +16,31 @@ var OptionParser = {
   },
 
   parseExchange: function(options, defaults){
-    if (!_.isObject(options.exchange)){
-      var exchangeName = options.exchange;
-      options.exchange = {
-        name: exchangeName
-      };
-    }
-
+    options = stringOrObject(options, "exchange", "name");
     options.exchange = _.defaults(options.exchange, defaults);
     return options;
   },
 
   parseQueue: function(options, defaults){
-    if (!_.isObject(options.queue)){
-      var queueName = options.queue;
-      options.queue = {
-        name: queueName
-      };
-    }
-
+    options = stringOrObject(options, "queue", "name");
     options.queue = _.defaults(options.queue, defaults);
     return options;
-  }
+  },
 };
 
 // Helpers
 // -------
+
+function stringOrObject(options, name, attribute){
+  if (!_.isObject(options[name])){
+    var value = options[name];
+    options[name] = {
+      name: value
+    };
+  }
+
+  return options;
+}
 
 function deepClone(obj){
   return JSON.parse(JSON.stringify(obj));

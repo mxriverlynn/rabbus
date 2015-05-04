@@ -16,6 +16,11 @@ describe("send / receive", function(){
   var q1 = "send-receive.q.1";
   var rKey = "test.key";
 
+  var exchangeConfig = {
+    name: ex1,
+    autoDelete: true
+  };
+
   describe("given a receiver in place, when sending a message", function(){
     var msg1, send, rec;
     var sendHandled, recHandled;
@@ -25,19 +30,20 @@ describe("send / receive", function(){
       msg1 = {foo: "bar"};
 
       send = new Sender(rabbit, {
-        exchange: ex1,
+        exchange: exchangeConfig,
         messageType: msgType1,
-        routingKey: rKey,
-        autoDelete: true
+        routingKey: rKey
       });
       send.on("error", reportErr);
 
       rec = new Receiver(rabbit, {
-        exchange: ex1,
-        queue: q1,
+        exchange: exchangeConfig,
+        queue: {
+          name: q1,
+          autoDelete: true
+        },
         messageType: msgType1,
-        routingKey: rKey,
-        autoDelete: true
+        routingKey: rKey
       });
       rec.on("error", reportErr);
 
@@ -71,19 +77,20 @@ describe("send / receive", function(){
       msg1 = {foo: "bar"};
 
       send = new Sender(rabbit, {
-        exchange: ex1,
+        exchange: exchangeConfig,
         messageType: msgType1,
-        routingKey: rKey,
-        autoDelete: true
+        routingKey: rKey
       });
       send.on("error", reportErr);
 
       rec = new Receiver(rabbit, {
-        exchange: ex1,
-        queue: q1,
+        exchange: exchangeConfig,
+        queue: {
+          name: q1,
+          autoDelete: true
+        },
         messageType: msgType1,
-        routingKey: rKey,
-        autoDelete: true
+        routingKey: rKey
       });
 
       rec.receive(function(data, ack){

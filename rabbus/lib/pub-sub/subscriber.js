@@ -10,7 +10,6 @@ var optionParser = require("../optionParser");
 
 function Subscriber(rabbit, options){
   this.rabbit = rabbit;
-  this.options = options;
   this.options = optionParser.parse(options, defaults);
 }
 
