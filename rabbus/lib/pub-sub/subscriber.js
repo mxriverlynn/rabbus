@@ -2,20 +2,17 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var Consumer = require("../consumer");
 var defaults = require("./defaults");
-var optionParser = require("../optionParser");
-var Shire = require("../shire");
 
 // Subscriber
 // --------
 
 function Subscriber(rabbit, options){
-  this.rabbit = rabbit;
-  this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire();
+  Consumer.call(this, rabbit, options, defaults);
 }
 
-util.inherits(Subscriber, Events.EventEmitter);
+util.inherits(Subscriber, Consumer);
 
 // Instance Methods
 // ----------------
