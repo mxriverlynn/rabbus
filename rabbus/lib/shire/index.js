@@ -1,5 +1,5 @@
 var Queue = require("./queue");
-var Handler = require("./handler");
+var Config = require("./config");
 
 // Constructor Function
 // --------------------
@@ -16,9 +16,9 @@ Shire.prototype.add = function(middleware){
 };
 
 Shire.prototype.prepare = function(cb){
-  var handler = new Handler(this.middleware);
-  cb(handler);
-  return handler.handle;
+  var config = new Config(this.middleware);
+  cb(config);
+  return config.handle;
 };
 
 // Exports

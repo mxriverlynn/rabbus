@@ -71,13 +71,12 @@ Subscriber.prototype.subscribe = function(cb){
 
     that.emit("ready");
 
-    var handler = middleware.prepare(function(handler){
-      debugger;
-      handler.on("nack", that.emit.bind(that, "nack"));
-      handler.on("ack", that.emit.bind(that, "ack"));
-      handler.on("reject", that.emit.bind(that, "reject"));
+    var handler = middleware.prepare(function(config){
+      config.on("ack", that.emit.bind(that, "ack"));
+      config.on("nack", that.emit.bind(that, "nack"));
+      config.on("reject", that.emit.bind(that, "reject"));
 
-      handler.last(function(msg, handler){
+      config.last(function(msg, properties, handler){
         try {
           cb(msg);
           handler.ack();
@@ -85,7 +84,7 @@ Subscriber.prototype.subscribe = function(cb){
           handler.nack();
           that.emitError(ex);
         }
-      });
+      }, that);
     });
 
     rabbit.handle(messageType, handler);

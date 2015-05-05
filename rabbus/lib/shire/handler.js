@@ -1,71 +1,62 @@
-var util = require("util");
-var EventEmitter = require("events").EventEmitter;
-
 // Constructor
 // -----------
 
-function Handler(middleware){
-  EventEmitter.call(this);
-  this.handle = this.handle.bind(this);
+function Handler(config, queue, message){
+  this.run = this.run.bind(this);
 
-  this.middleware = middleware;
+  this.config = config;
+  this.queue = queue;
+  this.message = message;
 }
-
-util.inherits(Handler, EventEmitter);
 
 // API
 // ---
 
-Handler.prototype.handle = function(message){
+Handler.prototype.run = function(){
   var handler = this;
+  var config = this.config;
 
-  function callHandler(queue, message){
-    debugger;
+  function callConfig(queue, message){
     var fn = queue.next;
     if (!fn){ 
-      handler.removeAllListeners();
+      config.removeAllListeners();
+      config.emit("complete");
       return; 
     }
 
     var body = message.body;
     var properties = message.properties;
-    handler.on("next", function(){
-      debugger;
-      callHandler(queue, message);
+    config.on("next", function(){
+      callConfig(queue, message);
     });
 
     fn.call(null, body, properties, handler);
   }
 
-  var middleware = [].concat(this.middleware);
-  if (this.finalFn){
-    middleware.push(this.finalFn);
+  if (this.config.finalFn){
+    this.queue.add(this.config.finalFn);
   }
 
-  callHandler(middleware, message);
-};
-
-Handler.prototype.last = function(finalFn){
-  this.finalFn = finalFn;
+  callConfig(this.queue, this.message);
 };
 
 Handler.prototype.next = function(){
-  this.emit("next");
+  this.config.emit("next");
 };
 
 Handler.prototype.ack = function(){
   this.message.ack();
-  this.emit("ack");
+  this.config.emit("ack");
 };
 
 Handler.prototype.nack = function(){
   this.message.nack();
-  this.emit("nack");
+  this.config.emit("nack");
 };
 
 Handler.prototype.reject = function(){
   this.message.reject();
-  this.emit("reject");
+  this.config.emit("reject");
 };
 
 // Exports
