@@ -2,18 +2,17 @@ var Events = require("events");
 var util = require("util");
 var when = require("when");
 
+var Consumer = require("../consumer");
 var defaults = require("./defaults");
-var optionParser = require("../optionParser");
 
 // Responder
 // --------
 
 function Responder(rabbit, options){
-  this.rabbit = rabbit;
-  this.options = optionParser.parse(options, defaults);
+  Consumer.call(this, rabbit, options, defaults);
 }
 
-util.inherits(Responder, Events.EventEmitter);
+util.inherits(Responder, Consumer);
 
 // Instance Methods
 // ----------------
@@ -55,31 +54,34 @@ Responder.prototype.handle = function(cb){
   var rabbit = this.rabbit;
   var queue = this.options.queue;
   var messageType = this.options.messageType;
+  var middleware = this.middleware;
 
   this._start().then(function(){
 
     that.emit("ready");
     console.log("listening for", messageType, "on", queue);
 
-    that.handler = rabbit.handle(messageType, function(message){
-      function respond(response){
-        message.reply(response);
-        that.emit("reply", response);
-      }
+    var handler = middleware.prepare(function(config){
+      config.on("ack", that.emit.bind(that, "ack"));
+      config.on("nack", that.emit.bind(that, "nack"));
+      config.on("reject", that.emit.bind(that, "reject"));
+      config.on("reply", that.emit.bind(that, "reply"));
 
-      function reject(){
-        message.nack();
-        that.emit("nack");
-      }
-      var msg = message.body;
+      config.last(function(msg, properties, actions){
+        function respond(response){
+          actions.reply(response);
+        }
 
-      try {
-        cb(msg, respond);
-      } catch(ex) {
-        reject();
-        that.emitError(ex);
-      }
+        try {
+          cb(msg, respond);
+        } catch(ex) {
+          actions.nack();
+          that.emitError(ex);
+        }
+      });
     });
+
+    rabbit.handle(messageType, handler);
     rabbit.startSubscription(queue.name);
 
   }).then(null, function(err){

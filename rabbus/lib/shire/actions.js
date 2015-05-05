@@ -22,4 +22,9 @@ Actions.prototype.reject = function(){
   this.config.emit("reject");
 };
 
+Actions.prototype.reply = function(response){
+  this.message.reply(response);
+  this.config.emit("reply", response);
+};
+
 module.exports = Actions;
