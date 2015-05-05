@@ -76,12 +76,12 @@ Subscriber.prototype.subscribe = function(cb){
       config.on("nack", that.emit.bind(that, "nack"));
       config.on("reject", that.emit.bind(that, "reject"));
 
-      config.last(function(msg, properties, handler){
+      config.last(function(msg, properties, actions){
         try {
           cb(msg);
-          handler.ack();
+          actions.ack();
         } catch(ex) {
-          handler.nack();
+          actions.nack();
           that.emitError(ex);
         }
       }, that);

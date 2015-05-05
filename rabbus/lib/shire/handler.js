@@ -1,19 +1,18 @@
+var Actions = require("./actions");
+
 // Constructor
 // -----------
 
-function Handler(config, queue, message){
-  this.run = this.run.bind(this);
-
+function Handler(config, queue){
+  this.handle = this.handle.bind(this);
   this.config = config;
   this.queue = queue;
-  this.message = message;
 }
 
 // API
 // ---
 
-Handler.prototype.run = function(){
-  var handler = this;
+Handler.prototype.handle = function(message){
   var config = this.config;
 
   function callConfig(queue, message){
@@ -30,33 +29,15 @@ Handler.prototype.run = function(){
       callConfig(queue, message);
     });
 
-    fn.call(null, body, properties, handler);
+    var actions = new Actions(config, message);
+    fn.call(null, body, properties, actions);
   }
 
   if (this.config.finalFn){
     this.queue.add(this.config.finalFn);
   }
 
-  callConfig(this.queue, this.message);
-};
-
-Handler.prototype.next = function(){
-  this.config.emit("next");
-};
-
-Handler.prototype.ack = function(){
-  this.message.ack();
-  this.config.emit("ack");
-};
-
-Handler.prototype.nack = function(){
-  this.message.nack();
-  this.config.emit("nack");
-};
-
-Handler.prototype.reject = function(){
-  this.message.reject();
-  this.config.emit("reject");
+  callConfig(this.queue, message);
 };
 
 // Exports
