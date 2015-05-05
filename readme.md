@@ -311,9 +311,11 @@ var Rabbus = require("rabbus");
 function SomeResponder(rabbus){
   Rabbus.Responder.call(this, rabbus, {
     exchange: "req-res.exchange",
-    queue: "req-res.queue",
+    queue: {
+      name: "req-res.queue",
+      limit: 1
+    },
     routingKey: "req-res.key",
-    limit: 1,
     messageType: "req-res.messageType"
   });
 }
@@ -361,7 +363,10 @@ messgae handler, you can specify a `limit` in the configuration.
 function SomeSubscriber(rabbus){
   Rabbus.Subscriber.call(this, rabbus, {
     // ...
-    limit: 1
+    queue: {
+      // ...
+      limit: 1
+    }
   });
 }
 ```
@@ -384,8 +389,10 @@ Rabbus provide a `noBatch` option for Queue definitions.
 ```js
 var Subscriber = new Rabbus.Subscriber({
   // ...
-
-  noBatch: true
+  queue: {
+    //... 
+    noBatch: true
+  }
 });
 ```
 
