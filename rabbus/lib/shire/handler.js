@@ -15,7 +15,7 @@ function Handler(config, queue){
 Handler.prototype.handle = function(message){
   var config = this.config;
 
-  function callConfig(queue, message){
+  function processMiddlewareFunction(queue, message){
     var fn = queue.next;
     if (!fn){ 
       config.removeAllListeners();
@@ -26,7 +26,7 @@ Handler.prototype.handle = function(message){
     var body = message.body;
     var properties = message.properties;
     config.on("next", function(){
-      callConfig(queue, message);
+      processMiddlewareFunction(queue, message);
     });
 
     var actions = new Actions(config, message);
@@ -37,7 +37,7 @@ Handler.prototype.handle = function(message){
     this.queue.add(this.config.finalFn);
   }
 
-  callConfig(this.queue, message);
+  processMiddlewareFunction(this.queue, message);
 };
 
 // Exports

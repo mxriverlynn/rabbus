@@ -13,7 +13,7 @@ function Shire(){
 // ----------
 
 Shire.prototype.add = function(middleware){
-  this.middleware.push(middleware);
+  this.middleware.add(middleware);
 };
 
 Shire.prototype.prepare = function(cb){
