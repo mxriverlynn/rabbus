@@ -506,6 +506,6 @@ handled before the middleware is in place.
 
 ## Legalese
 
-Unless otherwise noted, Rabbus is Copyright &copy;2014 Muted Solutions, LLC. All Rights Reserved. 
+Rabbus is Copyright &copy;2015 Muted Solutions, LLC. All Rights Reserved. 
 
 Rabbus is distributed under the [MIT license](http://mutedsolutions.mit-license.org).
