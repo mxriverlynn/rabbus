@@ -135,6 +135,44 @@ describe("consumer middleware", function(){
     });
   });
 
+  describe("given a last function and a middleware that calls reply, when running", function(){
+    var consumer;
+    var handled = false;
+    var replied = false;
+    var message;
+
+    beforeEach(function(){
+      consumer = new SampleConsumer();
+
+      consumer.use(function(msg, properties, actions){
+        actions.reply("some response");
+      });
+
+      consumer.on("handled", function(){
+        handled = true;
+      });
+
+      consumer.handle({
+        reply: function(msg){
+          replied = true;
+          message = msg;
+        }
+      });
+    });
+
+    it("should not call the last middleware", function(){
+      expect(handled).toBe(false);
+    });
+
+    it("should call the message reply", function(){
+      expect(replied).toBe(true);
+    });
+
+    it("should send the response", function(){
+      expect(message).toBe("some response");
+    });
+  });
+
   describe("given multiple middleware and a last, when handling multiple messages and calling next on all of them", function(){
     var consumer;
     var m1=[], m2=[], m3=[], last=[];
