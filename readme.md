@@ -370,7 +370,7 @@ This will limit your `SomeSubscriber` to only working on one message at a time.
 When your processing code calls `done`, the next message will be picked up
 and processed.
 
-## Ack / Nack Individual Messages
+## NoBatch: Ack / Nack Individual Messages
 
 Wascally's default behavior is to batch process `ack` and `nack`
 calls on messages. This can lead to an improvement of up to 400%
@@ -394,6 +394,108 @@ The following Rabbus objects provide the `noBatch` feature:
 * Rabbus.Receiver
 * Rabbus.Subscriber
 * Rabbus.Responder
+
+## Extending Rabbus w/ Middleware
+
+Rabbus consumers use a middleware system that allows you to extend the
+capabilities of the bus. To use it, call the `.use` method of any given
+message consumer object (Receiver, Responder, Subscriber). This method
+takes a callback function with the following signature:
+
+* **message**: the message body
+* **properties**: the properties of the message, including headers, etc.
+* **actions**: an object containing various methods for interaction with the RabbitMQ message, and to continue the middleware chain
+  * **next()**: this middleware is done, and the next one can be called
+  * **ack()**: the message is completely processed. acknowledge to the server. prevents any additional middleware from running
+  * **nack()**: the message cannot be processed, and should be re-queued for later. prevents any additional middleware from running
+  * **reject()**: the message cannot be processed and should not be re-queued. be sure you have a dead-letter queue before using this. prevents any additional middleware from running
+  * **reply(msg)**: send a reply back to the requester, during a request/response scenario. prevents any additional middleware from running
+
+### Middleware Examples
+
+As an example, you could log every message that gets sent through your consumer:
+
+```js
+var mySubscriber = new MySubscriber();
+
+mySubscriber.use(function(message, properties, actions){
+
+  console.log("Got a message. Doing stuff with middleware.");
+  console.log(message);
+
+  // allow the middleware chain to continue
+  actions.next();
+});
+```
+
+In another scenario, you may want the middleware to `nack` the message because
+some condition is not yet met.
+
+```js
+var rec = new SomeReceiver();
+
+rec.use(function(message, properties, actions){
+
+  // check some conditions
+  if (message.someData && someOtherSystem.stuffNotReady()){
+
+    // conditions not met. nack the message and try again later
+    actions.nack();
+
+  } else {
+
+    // everything is good to go, allow the next middleware to run
+    actions.next();
+
+  }
+});
+```
+
+**WARNING:** If you forget to call `.next()` or one of the other actions,
+your message will be stuck in limbo, unacknowledged. 
+
+### Order Of Middleware Processing
+
+Middleware is processed in the order in which it was added: first in, first out.
+
+When all middleware has been processed, and none of them have ack/nack/reject/reply'd to the message,
+the final handling for the messag will be sent to the message handler function
+that was supplied to the `handle` method call. 
+
+```js
+sub.handle("message.type", function(msg, done){
+  console.log("handler fires last");
+  done();
+});
+
+sub.use(function(msg, prop, act){
+  console.log("first middleware");
+  act.next();
+});
+
+sub.use(function(msg, prop, act){
+  console.log("second middleware");
+  act.next();
+});
+
+sub.use(function(msg, prop, act){
+  console.log("third middleware");
+  act.next();
+});
+```
+
+When this subscriber receives a message to handle, you will see the following:
+
+```
+first middleware
+second middleware
+third middleware
+handler fires last
+```
+
+It is recommended you add the middleware before adding the `handle`
+call. Adding middleware after calling `handle` could allow messages to be
+handled before the middleware is in place.
 
 ## Legalese
 
