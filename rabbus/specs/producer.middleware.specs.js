@@ -144,7 +144,7 @@ describe("producer middleware", function(){
       baz: "quux"
     };
 
-    beforeEach(function(){
+    beforeEach(function(done){
       var producer = new SampleProducer();
       producer.on("handled", function(msg){
         messages.push(msg);
@@ -162,7 +162,10 @@ describe("producer middleware", function(){
       });
 
       producer.send(msg1);
-      producer.send(msg2);
+      setTimeout(function(){
+        producer.send(msg2);
+        done();
+      }, 100);
     });
 
     it("should run the middleware in order, on both messages", function(){

@@ -81,24 +81,12 @@ Responder.prototype.handle = function(cb){
       });
     });
 
-    rabbit.handle(messageType, handler);
+    that.subscription = rabbit.handle(messageType, handler);
     rabbit.startSubscription(queue.name);
 
   }).then(null, function(err){
     that.emitError(err);
   });
-};
-
-Responder.prototype.emitError = function(err){
-  this.emit("error", err);
-};
-
-Responder.prototype.stop = function(){
-  this.removeAllListeners();
-  if (this.handler) {
-    this.handler.remove();
-    this.handler = null;
-  }
 };
 
 // Exports
