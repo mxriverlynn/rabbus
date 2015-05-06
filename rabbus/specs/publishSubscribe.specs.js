@@ -110,7 +110,7 @@ describe("publish / subscribe", function(){
       expect(err).toBe(handlerError);
     });
 
-    xit("should nack the message", function(){
+    it("should nack the message", function(){
       expect(nacked).toBe(true);
     });
   });

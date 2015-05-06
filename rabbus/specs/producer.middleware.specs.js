@@ -134,4 +134,50 @@ describe("producer middleware", function(){
     });
   });
 
+  describe("when sending multiple messages through the middleware", function(){
+    var messages = [];
+    var results = [];
+    var msg1 = {
+      foo: "bar"
+    };
+    var msg2 = {
+      baz: "quux"
+    };
+
+    beforeEach(function(){
+      var producer = new SampleProducer();
+      producer.on("handled", function(msg){
+        messages.push(msg);
+        results.push("final");
+      });
+
+      producer.use(function(msg, hdr, actions){
+        results.push("m1");
+        actions.next();
+      });
+
+      producer.use(function(msg, hdr, actions){
+        results.push("m2");
+        actions.next();
+      });
+
+      producer.send(msg1);
+      producer.send(msg2);
+    });
+
+    it("should run the middleware in order, on both messages", function(){
+      expect(results[0]).toBe("m1");
+      expect(results[1]).toBe("m2");
+      expect(results[2]).toBe("final");
+      expect(results[3]).toBe("m1");
+      expect(results[4]).toBe("m2");
+      expect(results[5]).toBe("final");
+    });
+
+    it("should send the messages through", function(){
+      expect(messages[0]).toBe(msg1);
+      expect(messages[1]).toBe(msg2);
+    });
+  });
+
 });
