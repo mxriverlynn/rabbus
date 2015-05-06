@@ -407,12 +407,12 @@ The following Rabbus objects provide the `noBatch` feature:
 
 ## Extending Rabbus w/ Middleware
 
-Rabbus consumers use a middleware system that allows you to extend the
-capabilities of the bus. To use it, call the `.use` method of any given
-message consumer object (Receiver, Responder, Subscriber) or producer 
+Rabbus message Producers and Consumers use a middleware system that allows you 
+to extend the capabilities of the bus. To use it, call the `.use` method of any 
+given message Consumer object (Receiver, Responder, Subscriber) or Producer 
 (Sender, Requester, Publisher). 
 
-This method takes a callback function with a signature that varies depending
+The `use` method takes a callback function with a signature that varies depending
 on whether you're using a producer or consumer.
 
 ### Consumer Middleware
@@ -484,7 +484,7 @@ your message will be stuck in limbo, unacknowledged.
 The `use` method on consumers takes a callback with this signature:
 
 ```js
-consumer.use(function(message, headers, actions){
+producer.use(function(message, headers, actions){
 
 });
 ```
