@@ -13,7 +13,7 @@ function Consumer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire();
+  this.middleware = new Shire.Consumer();
 }
 
 util.inherits(Consumer, EventEmitter);

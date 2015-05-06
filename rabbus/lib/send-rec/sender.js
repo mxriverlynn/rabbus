@@ -1,42 +1,23 @@
 var Events = require("events");
 var util = require("util");
 var when = require("when");
-var _ = require("underscore");
 
 var defaults = require("./defaults");
-var optionParser = require("../optionParser");
+var Producer = require("../producer");
 
 // Base Sender
 // --------------
 
 function Sender(rabbit, options){
-  this.rabbit = rabbit;
-  this.options = optionParser.parse(options, defaults);
+  Producer.call(this, rabbit, options, defaults);
 }
 
-util.inherits(Sender, Events.EventEmitter);
+util.inherits(Sender, Producer);
 
 // Sender Instance Members
 // ------------------------
 
-Sender.prototype._start = function(){
-  if (this._startPromise){
-    return this._startPromise;
-  }
-
-  var exchange = this.options.exchange;
-  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
-
-  return this._startPromise;
-};
-
-Sender.prototype.send = function(data, options, done){
-  if (!done && _.isFunction(options)) {
-    done = options;
-    options = {};
-  }
-  if (!options) { options = {}; }
-
+Sender.prototype.send = function(data, done){
   var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
@@ -49,7 +30,6 @@ Sender.prototype.send = function(data, options, done){
 
     rabbit.publish(exchange.name, {
       routingKey: routingKey,
-      correlationId: options.correlationId,
       type: messageType,
       body: data
     }).then(function(){
@@ -61,14 +41,6 @@ Sender.prototype.send = function(data, options, done){
   }).then(null, function(err){
     that.emitError(err);
   });
-};
-
-Sender.prototype.emitError = function(err){
-  this.emit("error", err);
-};
-
-Sender.prototype.stop = function(){
-  this.removeAllListeners();
 };
 
 // Exports

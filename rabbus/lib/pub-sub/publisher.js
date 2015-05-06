@@ -21,9 +21,8 @@ util.inherits(Publisher, Events.EventEmitter);
 Publisher.prototype._start = function(){
   if (this._startPromise){ return this._startPromise; }
 
-  var name = this.options.exchange.name;
-  var type = this.options.exchange.type;
-  this._startPromise = this.rabbit.addExchange(name, type, this.options.exchange);
+  var exchange = this.options.exchange;
+  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
 
   return this._startPromise;
 };

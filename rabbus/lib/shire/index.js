@@ -1,29 +1,9 @@
-var Queue = require("./queue");
-var Config = require("./config");
-var Handler = require("./handler");
+var Consumer = require("./consumer");
+var Producer = require("./producer");
 
-// Constructor Function
-// --------------------
-
-function Shire(){
-  this.middleware = new Queue();
-}
-
-// Public API
-// ----------
-
-Shire.prototype.add = function(middleware){
-  this.middleware.add(middleware);
-};
-
-Shire.prototype.prepare = function(cb){
-  var config = new Config();
-  cb(config);
-
-  var middleware = this.middleware.clone();
-  var handler = new Handler(config, middleware);
-
-  return handler.handle;
+var Shire = {
+  Consumer: Consumer,
+  Producer: Producer
 };
 
 // Exports
