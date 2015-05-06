@@ -14,10 +14,13 @@ common patterns:
 * Publish / Subscribe
 * Request / Response
 
-Please note that the names of these patterns imply certain things both in
-semantics and in behaviors. I (@derickbailey) have put my own experience and
-opinions in to these names and the RabbitMQ configuration associated with them.
-Some of the behavior is inherited from Wascally, as well.
+The items on the left are "producers" as they produce a message for RabbitMQ
+to route and handle. Items on the right are "consumers" as they consume a
+message from a queue in RabbitMQ. 
+
+Producers and Consumers inherit from a base class of that name, providing
+common functionality and a means by which all producers / consumers can be
+extended (see "middleware" below).
 
 ## Installing Rabbus
 
@@ -406,8 +409,23 @@ The following Rabbus objects provide the `noBatch` feature:
 
 Rabbus consumers use a middleware system that allows you to extend the
 capabilities of the bus. To use it, call the `.use` method of any given
-message consumer object (Receiver, Responder, Subscriber). This method
-takes a callback function with the following signature:
+message consumer object (Receiver, Responder, Subscriber) or producer 
+(Sender, Requester, Publisher). 
+
+This method takes a callback function with a signature that varies depending
+on whether you're using a producer or consumer.
+
+### Consumer Middleware
+
+The `use` method on consumers takes a callback with this signature:
+
+```js
+consumer.use(function(message, properties, actions){
+
+});
+```
+
+The parameters are as follows:
 
 * **message**: the message body
 * **properties**: the properties of the message, including headers, etc.
@@ -418,7 +436,7 @@ takes a callback function with the following signature:
   * **reject()**: the message cannot be processed and should not be re-queued. be sure you have a dead-letter queue before using this. prevents any additional middleware from running
   * **reply(msg)**: send a reply back to the requester, during a request/response scenario. prevents any additional middleware from running
 
-### Middleware Examples
+#### Consumer Middleware Examples
 
 As an example, you could log every message that gets sent through your consumer:
 
@@ -461,13 +479,62 @@ rec.use(function(message, properties, actions){
 **WARNING:** If you forget to call `.next()` or one of the other actions,
 your message will be stuck in limbo, unacknowledged. 
 
+### Producer Middleware
+
+The `use` method on consumers takes a callback with this signature:
+
+```js
+consumer.use(function(message, headers, actions){
+
+});
+```
+
+The parameters are as follows:
+
+* **message**: the message body, which you can transform as needed
+* **headers**: the headers of the message, which can be altered in any way you need
+* **actions**: an object containing various methods for interaction with the RabbitMQ message, and to continue the middleware chain
+  * **next()**: this middleware is done, and the next one can be called
+
+#### Producer Middleware Examples
+
+You can easily add / change headers or the actual message content in your
+producer middleware. Any change you make to the `message` or `headers` objects
+will make their way to the next middleware, and ultimately to RabbitMQ as part
+of the message.
+
+```js
+var myPub = new MyPublisher();
+
+myPub.use(function(message, headers, actions){
+
+  var hasFoo = !!(message.foo);
+
+  if (hasFoo){
+    // add data to the message body
+    message.bar = "foo is there";
+    message.baz = true;
+  }
+
+  // add a header to the message properties
+  headers.hasFoo = hasFoo;
+
+  // allow the middleware chain to continue
+  actions.next();
+});
+```
+
+**WARNING:** If you forget to call `.next()` in your middleware,
+the message will never be published. While this is generally dangerous, it can
+be used to stop messages that should not be sent.
+
 ### Order Of Middleware Processing
 
-Middleware is processed in the order in which it was added: first in, first out.
+Whether you are using a Producer or Consumer, middleware is processed in the 
+order in which it was added: first in, first out.
 
-When all middleware has been processed, and none of them have ack/nack/reject/reply'd to the message,
-the final handling for the messag will be sent to the message handler function
-that was supplied to the `handle` method call. 
+For example, if you have a consumer that handles a message and then adds
+some middleware, you will have the middleware processed first.
 
 ```js
 sub.handle("message.type", function(msg, done){
