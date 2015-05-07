@@ -1,6 +1,6 @@
 {
   "name": "rabbus",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A highly opinionated set of messaging abstractions for RabbitMQ, built with Wascally",
   "main": "rabbus/index.js",
   "scripts": {
