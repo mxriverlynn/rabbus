@@ -17,20 +17,23 @@ Consumer.prototype.add = function(middleware){
 };
 
 Consumer.prototype.prepare = function(cb){
-  var handler = (function(message){
-    var config = new Config();
-    cb(config);
+  return this._getHandler.bind(this, cb);
+};
 
-    var middleware = this.middleware.clone();
-    if (config.finalFn){
-      middleware.add(config.finalFn);
-    }
+// Private Methods
+// ---------------
 
-    var handler = new Handler(config, middleware);
-    handler.handle(message);
-  }).bind(this);
+Consumer.prototype._getHandler = function(cb, message){
+  var config = new Config();
+  cb(config);
 
-  return handler;
+  var middleware = this.middleware.clone();
+  if (config.finalFn){
+    middleware.add(config.finalFn);
+  }
+
+  var handler = new Handler(config, middleware);
+  handler.handle(message);
 };
 
 // exports

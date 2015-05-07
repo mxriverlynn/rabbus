@@ -1,5 +1,15 @@
 var util = require("util");
+var rabbit = require("wascally");
 var Consumer = require("../lib/consumer");
+var Publisher = require("../lib/pub-sub/publisher");
+var Subscriber = require("../lib/pub-sub/subscriber");
+
+function reportErr(err){
+  setImmediate(function(){
+    console.log(err.stack);
+    throw err;
+  });
+}
 
 describe("consumer middleware", function(){
 
@@ -173,34 +183,69 @@ describe("consumer middleware", function(){
     });
   });
 
-  describe("given multiple middleware and a last, when handling multiple messages and calling next on all of them", function(){
-    var consumer;
+  describe("given multiple middleware, when handling multiple messages and calling next on all of them", function(){
+    var pub, sub;
+    var msg1 = {foo: "bar"};
+    var msg2 = {baz: "quux"};
+    var msgType1 = "pub-sub.middleware.1";
+
+    var exConfig = {
+      name: "pub-sub.middleware.ex.1",
+      autoDelete: true
+    };
+
+    var qConfig = {
+      name: "pub-sub.middleware.q.1",
+      autoDelete: true
+    };
     var m1=[], m2=[], m3=[], last=[];
 
-    beforeEach(function(){
-      consumer = new SampleConsumer();
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
 
-      consumer.use(function(msg, properties, actions){
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      sub.use(function(msg, properties, actions){
         m1.push(true);
         actions.next();
       });
 
-      consumer.use(function(msg, properties, actions){
+      sub.use(function(msg, properties, actions){
         m2.push(true);
         actions.next();
       });
 
-      consumer.use(function(msg, properties, actions){
+      sub.use(function(msg, properties, actions){
         m3.push(true);
         actions.next();
       });
 
-      consumer.on("handled", function(){
+      var subCount = 0;
+      sub.subscribe(function(data){
+        subCount += 1;
         last.push(true);
+
+        if (subCount === 2){
+          done();
+        }
       });
 
-      consumer.handle({});
-      consumer.handle({});
+      function pubIt(){
+        pub.publish(msg1);
+        pub.publish(msg2);
+      }
+
+      sub.on("ready", pubIt);
     });
 
     it("should handle all of them", function(){
