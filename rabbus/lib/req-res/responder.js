@@ -66,6 +66,7 @@ Responder.prototype.handle = function(cb){
       config.on("nack", that.emit.bind(that, "nack"));
       config.on("reject", that.emit.bind(that, "reject"));
       config.on("reply", that.emit.bind(that, "reply"));
+      config.on("error", that.emit.bind(that, "error"));
 
       config.last(function(msg, properties, actions){
         function respond(response){

@@ -13,6 +13,10 @@ ProducerActions.prototype.next = function(){
   this.config.emit("next");
 };
 
+ProducerActions.prototype.error = function(err){
+  this.config.emit("error", err);
+};
+
 // Exports
 // -------
 

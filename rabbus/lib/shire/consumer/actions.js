@@ -33,6 +33,10 @@ ConsumerActions.prototype.reply = function(response){
   this.config.emit("reply", response);
 };
 
+ConsumerActions.prototype.error = function(err){
+  this.config.emit("error", err);
+};
+
 // Exports
 // -------
 
