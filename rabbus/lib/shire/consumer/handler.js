@@ -14,7 +14,7 @@ function Handler(config, queue){
 
 Handler.prototype.handle = function(message){
   var config = this.config;
-  var actions = this.actions;
+  var actions = new Actions(config, message);
 
   function processMiddlewareFunction(queue, message){
     var fn = queue.next;
@@ -30,7 +30,6 @@ Handler.prototype.handle = function(message){
       processMiddlewareFunction(queue, message);
     });
 
-    var actions = new Actions(config, message);
     fn.call(null, body, properties, actions);
   }
 
