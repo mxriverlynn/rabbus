@@ -1,5 +1,3 @@
-# Rabbus: Micro-ESB For NodeJS/RabbitMQ
-
 ![](logo/rabbus-logo.png)
 
 A highly opinionated, yet minimal, set of message bus abstractions for NodeJS.
