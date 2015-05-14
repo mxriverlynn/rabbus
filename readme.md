@@ -1,5 +1,7 @@
 # Rabbus: Micro-ESB For NodeJS/RabbitMQ
 
+![](logo/rabbus-logo.png)
+
 A highly opinionated, yet minimal, set of message bus abstractions for NodeJS.
 It is built on top of [RabbitMQ](http://rabbitmq.com), 
 with [Wascally](https://github.com/LeanKit-Labs/wascally) as the primary library
