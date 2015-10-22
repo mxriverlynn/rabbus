@@ -11,7 +11,7 @@ var SendReceiveDefaults = {
     noBatch: false,
     subscribe: false
   },
-  routingKey: [""]
+  routingKey: ""
 };
 
 module.exports = SendReceiveDefaults;

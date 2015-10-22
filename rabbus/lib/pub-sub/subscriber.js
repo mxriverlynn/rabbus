@@ -27,6 +27,7 @@ Subscriber.prototype._start = function(){
   var options = this.options;
   var queueOptions = options.queue;
   var exchangeOptions = options.exchange;
+  var routingKey = options.routingKey;
 
   this._startPromise = when.promise(function(resolve, reject){
 
@@ -40,7 +41,7 @@ Subscriber.prototype._start = function(){
     when.all([exP, qP]).then(function(){
 
       rabbit
-        .bindQueue(exchangeOptions.name, queueOptions.name, options.routingKeys)
+        .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)
         .then(function(){
           resolve();
         })

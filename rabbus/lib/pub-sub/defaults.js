@@ -11,7 +11,7 @@ var PubSubDefaults = {
     noBatch: false,
     subscribe: false
   },
-  routingKey: [""]
+  routingKey: ""
 };
 
 module.exports = PubSubDefaults;

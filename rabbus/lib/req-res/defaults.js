@@ -11,7 +11,7 @@ var RequestResponseDefault = {
     noBatch: false,
     subscribe: false
   },
-  routingKey: [""]
+  routingKey: ""
 };
 
 module.exports = RequestResponseDefault;

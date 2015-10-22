@@ -26,7 +26,7 @@ describe("publish / subscribe", function(){
     autoDelete: true
   };
 
-  describe("when publishing a message with a subscriber", function(){
+  describe("when publishing and subscribing", function(){
     var pub, sub;
     var pubHandled, subHandled;
     var publishMessage;
@@ -48,7 +48,7 @@ describe("publish / subscribe", function(){
 
       sub.subscribe(function(data){
         publishMessage = data;
-        done();
+        setTimeout(done, 250);
       });
 
       function pubIt(){
@@ -97,7 +97,7 @@ describe("publish / subscribe", function(){
 
       sub.on("error", function(ex){
         err = ex;
-        done();
+        setTimeout(done, 250);
       });
 
       sub.on("nack", function(){
