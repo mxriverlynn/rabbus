@@ -72,6 +72,59 @@ sub.on("error", function(err){
 });
 ```
 
+### Sending Custom Message Properties
+
+RabbitMQ allows you to specify any number of custom headers and other properties,
+and [Wascally](https://github.com/LeanKit-Labs/wascally) allows you to manipulate
+them as needed.
+
+With Rabbus, you can also pass any arbitrary properties or headers that you wish,
+when sending a message. This is done in a few ways.
+
+0. Middleware - see the documentation below
+0. A key/value list when sending a message
+
+To use a key/value list, provide an object with keys / values in either the
+`send` or `publish` method of the Sender / Publisher objects (below).
+
+For example:
+
+```js
+sender.send(someMessage, {
+  expiresAfter: 1000,
+  headers: {
+    foo: "bar"
+  }
+});
+```
+
+This will send a message with a TTL of 1 second (1000ms), and a header of
+`foo: bar`.
+
+### Callback After Sending message
+
+If you want to specify both a properties object and provide a callback
+method to fire after the message is sent, the callback can be specified as an
+`onComplete` attribute of the properties:
+
+```js
+sender.send(someMessage, {
+  expiresAfter: 1000,
+  onComplete: function(){
+    console.log("the message has been sent!");
+  }
+});
+```
+
+If you don't specify an object literal, you can provide a callback function
+directly as the second parameter.
+
+```js
+sender.send(someMessage, function(){
+  console.log("the message has been sent!");
+});
+```
+
 ## Send / Receive
 
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
