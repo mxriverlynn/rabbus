@@ -37,41 +37,14 @@ Consumer.prototype.stop = function(){
   }
 };
 
-Consumer.prototype.consume = function(cb){
-  var that = this;
-  var rabbit = this.rabbit;
-  var queue = this.options.queue.name;
-  var messageType = this.options.messageType;
-  var middleware = this.middleware;
-
-  this._start().then(function(){
-
-    that.emit("ready");
-
-    var handler = middleware.prepare(function(config){
-      config.on("ack", that.emit.bind(that, "ack"));
-      config.on("nack", that.emit.bind(that, "nack"));
-      config.on("reject", that.emit.bind(that, "reject"));
-      config.on("error", that.emit.bind(that, "error"));
-
-      config.last(function(msg, properties, actions){
-        try {
-          cb(msg, function(){ actions.ack(); });
-        } catch(ex) {
-          actions.nack();
-          that.emitError(ex);
-        }
-      }, that);
-    });
-
-    that.subscription = rabbit.handle(messageType, handler);
-    rabbit.startSubscription(queue);
-
-  }).then(null, function(err){
-    that.emitError(err);
-  });
-};
-
+Consumer.prototype.consume = consumer(function(actions){
+  actions.ack();
+});
+  
+Consumer.prototype.handle = consumer(function(actions, response){
+  actions.reply(response);
+});
+  
 // Private methods
 // ---------------
 
@@ -115,6 +88,49 @@ Consumer.prototype._start = function(){
 
   return this._startPromise;
 };
+
+// private helper methods
+// ----------------------
+
+function consumer(consumerAction){
+  
+  return function(cb){
+    var that = this;
+    var rabbit = this.rabbit;
+    var queue = this.options.queue.name;
+    var messageType = this.options.messageType;
+    var middleware = this.middleware;
+
+    this._start().then(function(){
+
+      that.emit("ready");
+
+      var handler = middleware.prepare(function(config){
+        config.on("ack", that.emit.bind(that, "ack"));
+        config.on("nack", that.emit.bind(that, "nack"));
+        config.on("reject", that.emit.bind(that, "reject"));
+        config.on("reply", that.emit.bind(that, "reply"));
+        config.on("error", that.emit.bind(that, "error"));
+
+        config.last(function(msg, properties, actions){
+          var consumed = consumerAction.bind(that, actions);
+          try {
+            cb(msg, consumed);
+          } catch(ex) {
+            actions.nack();
+            that.emitError(ex);
+          }
+        });
+      });
+
+      that.subscription = rabbit.handle(messageType, handler);
+      rabbit.startSubscription(queue);
+
+    }).then(null, function(err){
+      that.emitError(err);
+    });
+  };
+}
 
 // Exports
 // -------
