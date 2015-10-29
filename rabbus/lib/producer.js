@@ -28,45 +28,14 @@ Producer.prototype.stop = function(){
   this.removeAllListeners();
 };
 
-Producer.prototype.publish = function(data, done){
-  var that = this;
-  var middleware = this.middleware;
-
-  this._start().then(function(){
-    that.emit("ready");
-
-    var handler = middleware.prepare(function(config){
-      config.last(function(message, headers){
-        that._publish(message, headers, done);
-      });
-    });
-
-    handler(data);
-      
-  }).then(null, function(err){
-    that.emitError(err);
-  });
-};
-
-Producer.prototype.request = function(data, cb){
-  var that = this;
-  var middleware = this.middleware;
-
-  this._start().then(function(){
-    that.emit("ready");
-
-    var handler = middleware.prepare(function(config){
-      config.last(function(message, headers){
-        that._request(message, headers, cb);
-      });
-    });
-
-    handler(data);
-
-  }).then(null, function(err){
-    that.emitError(err);
-  });
-};
+Producer.prototype.publish = producer(function(message, headers, done){
+  this._publish(message, headers, done);
+});
+  
+  
+Producer.prototype.request = producer(function(message, headers, cb){
+  this._request(message, headers, cb);
+});
 
 // Private Members
 // ---------------
@@ -128,6 +97,33 @@ Producer.prototype._request = function(msg, headers, cb){
 Producer.prototype.emitError = function(err){
   this.emit("error", err);
 };
+
+// private helper methods
+// ----------------------
+
+function producer(publishMethod){
+
+  return function(data, done){
+    var that = this;
+    var middleware = this.middleware;
+
+    this._start().then(function(){
+      that.emit("ready");
+
+      var handler = middleware.prepare(function(config){
+        config.last(function(message, headers){
+          publishMethod.call(that, message, headers, done);
+        });
+      });
+
+      handler(data);
+        
+    }).then(null, function(err){
+      that.emitError(err);
+    });
+  };
+
+}
 
 // Exports
 // -------
