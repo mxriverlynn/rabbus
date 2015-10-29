@@ -80,11 +80,15 @@ allowing you to specify the binding key.
 ### Set Up A Sender
 
 ```js
+// define a sender
+// ---------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
-function SomeSender(rabbus){
-  Rabbus.Sender.call(this, rabbus, {
+function SomeSender(){
+  Rabbus.Sender.call(this, wascally, {
     exchange: "send-rec.exchange",
     routingKey: "send-rec.key",
     messageType: "send-rec.messageType"
@@ -93,13 +97,17 @@ function SomeSender(rabbus){
 
 util.inherits(SomeSender, Rabbus.Sender);
 
-var sender = new SomeSender(Rabbus);
+// send a message
+// --------------
+
+var sender = new SomeSender();
+
 var message = {
   place: "world"
 };
 
 sender.send(message, function(){
-  console.log("sent a message");
+  console.log("message has been sent!");
 });
 ```
 
@@ -120,11 +128,15 @@ The following options are available when configuring a sender:
 ### Set Up A Receiver
 
 ```js
+// define a receiver
+// -----------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
-function SomeReceiver(rabbus){
-  Rabbus.Receiver.call(this, rabbus, {
+function SomeReceiver(){
+  Rabbus.Receiver.call(this, wascally, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
     routingKey: "send-rec.key",
@@ -134,7 +146,10 @@ function SomeReceiver(rabbus){
 
 util.inherits(SomeReceiver, Rabbus.Receiver);
 
-var receiver = new SomeReceiver(Rabbus);
+// receive a message
+// -----------------
+
+var receiver = new SomeReceiver();
 
 receiver.receive(function(message, done){
   console.log("hello", message.place);
@@ -168,11 +183,15 @@ listening.
 ### Set Up A Publisher
 
 ```js
+// define a publisher
+// ------------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
-function SomePublisher(rabbus){
-  Rabbus.Publisher.call(this, rabbus, {
+function SomePublisher(){
+  Rabbus.Publisher.call(this, wascally, {
     exchange: "pub-sub.exchange",
     routingKey: "pub-sub.key",
     messageType: "pub-sub.messageType"
@@ -181,13 +200,17 @@ function SomePublisher(rabbus){
 
 util.inherits(SomePublisher, Rabbus.Publisher);
 
-var publisher = new SomePublisher(Rabbus);
+// publish a message
+// -----------------
+
+var publisher = new SomePublisher();
+
 var message = {
   place: "world"
 };
 
 publisher.publish(message, function(){
-  console.log("published an event!");
+  console.log("published a message");
 });
 ```
 
@@ -208,11 +231,15 @@ The following options are available when configuring a publisher:
 ### Set Up A Subscriber
 
 ```js
+// define a subscriber
+// -------------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
 function SomeSubscriber(){
-  Rabbus.Subscriber.call(this, rabbus, {
+  Rabbus.Subscriber.call(this, wascally, {
     exchange: "pub-sub.exchange",
     queue: "pub-sub.queue",
     routingKey: "pub-sub.key",
@@ -222,7 +249,8 @@ function SomeSubscriber(){
 
 util.inherits(SomeSubscriber, Rabbus.Subscriber);
 
-// ... 
+// subscribe to a message
+// ----------------------
 
 var sub1 = new SomeSubscriber();
 sub1.subscribe(function(message){
@@ -269,11 +297,15 @@ message, ensuring that it gets back to the requester correctly.
 ### Set Up A Requester
 
 ```js
+// define a requester
+// ------------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
-function SomeRequester(rabbus){
-  Rabbus.Requester.call(this, rabbus, {
+function SomeRequester(){
+  Rabbus.Requester.call(this, wascally, {
     exchange: "req-res.exchange",
     messageType: "req-res.messageType",
     routingKey: "req-res.key"
@@ -282,9 +314,13 @@ function SomeRequester(rabbus){
 
 util.inherits(SomeRequester, Rabbus.Requester);
 
+// make a request
+// --------------
+
 var requester = new SomeRequester(Rabbus);
 
 var msg = {};
+
 requester.request(msg, function(response, done){
   console.log("Hello", response.place);
   done();
@@ -308,11 +344,15 @@ The following options are available when configuring a requester:
 ### Set up a Responder
 
 ```js
+// define a responder
+// ------------------
+
 var util = require("util");
 var Rabbus = require("rabbus");
+var wascally = require("wascally");
 
-function SomeResponder(rabbus){
-  Rabbus.Responder.call(this, rabbus, {
+function SomeResponder(){
+  Rabbus.Responder.call(this, wascally, {
     exchange: "req-res.exchange",
     queue: {
       name: "req-res.queue",
@@ -324,6 +364,9 @@ function SomeResponder(rabbus){
 }
 
 util.inherits(SomeResponder, Rabbus.Responder);
+
+// handle a request and send a response
+// ------------------------------------
 
 var responder = new SomeResponder(Rabbus);
 
@@ -363,8 +406,8 @@ If you need to limit the number of messages being processed by any given
 messgae handler, you can specify a `limit` in the configuration.
 
 ```
-function SomeSubscriber(rabbus){
-  Rabbus.Subscriber.call(this, rabbus, {
+function SomeSubscriber(){
+  Rabbus.Subscriber.call(this, wascally, {
     // ...
     queue: {
       // ...
