@@ -1,6 +1,4 @@
-var Events = require("events");
 var util = require("util");
-var when = require("when");
 
 var defaults = require("./defaults");
 var Producer = require("../producer");

@@ -1,10 +1,7 @@
-var Events = require("events");
 var util = require("util");
-var when = require("when");
-var _ = require("underscore");
 
-var Consumer = require("../consumer");
 var defaults = require("./defaults");
+var Consumer = require("../consumer");
 
 // Receiver
 // --------

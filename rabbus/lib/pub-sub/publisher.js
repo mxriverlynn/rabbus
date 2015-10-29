@@ -1,4 +1,3 @@
-var Events = require("events");
 var util = require("util");
 
 var defaults = require("./defaults");
