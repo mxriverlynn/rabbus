@@ -49,17 +49,10 @@ Producer.prototype._start = function(){
   return this._startPromise;
 };
 
-Producer.prototype._publish = function(msg, headers, done){
+Producer.prototype._publish = function(msg, properties, done){
   var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
-
-  var properties = {
-    routingKey: this.options.routingKey,
-    type: this.options.messageType,
-    body: msg,
-    headers: headers
-  };
 
   rabbit
     .publish(exchange.name, properties)
@@ -71,17 +64,10 @@ Producer.prototype._publish = function(msg, headers, done){
     });
 };
 
-Producer.prototype._request = function(msg, headers, cb){
+Producer.prototype._request = function(msg, properties, cb){
   var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
-
-  var properties = {
-    routingKey: this.options.routingKey,
-    type: this.options.messageType,
-    body: msg,
-    headers: headers
-  };
 
   rabbit
     .request(exchange.name, properties)
@@ -112,7 +98,15 @@ function producer(publishMethod){
 
       var handler = middleware.prepare(function(config){
         config.last(function(message, headers){
-          publishMethod.call(that, message, headers, done);
+
+          var properties = {
+            routingKey: that.options.routingKey,
+            type: that.options.messageType,
+            body: message,
+            headers: headers
+          };
+
+          publishMethod.call(that, message, properties, done);
         });
       });
 
