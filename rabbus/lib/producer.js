@@ -1,5 +1,6 @@
 var EventEmitter = require("events").EventEmitter;
 var util = require("util");
+var _ = require("underscore");
 
 var optionParser = require("./optionParser");
 var Shire = require("./shire");
@@ -28,13 +29,13 @@ Producer.prototype.stop = function(){
   this.removeAllListeners();
 };
 
-Producer.prototype.publish = producer(function(message, headers, done){
-  this._publish(message, headers, done);
+Producer.prototype.publish = producer(function(message, properties, done){
+  this._publish(message, properties, done);
 });
   
   
-Producer.prototype.request = producer(function(message, headers, cb){
-  this._request(message, headers, cb);
+Producer.prototype.request = producer(function(message, properties, cb){
+  this._request(message, properties, cb);
 });
 
 // Private Members
@@ -89,7 +90,19 @@ Producer.prototype.emitError = function(err){
 
 function producer(publishMethod){
 
-  return function(data, done){
+  return function(data, properties){
+    var done;
+    
+    if (!properties) { properties = {}; }
+
+    if (_.isFunction(properties)){
+      done = properties;
+      properties = {};
+    } else if (_.isObject(properties)) {
+      done = properties.onComplete;
+      properties.onComplete = undefined;
+    }
+
     var that = this;
     var middleware = this.middleware;
 
@@ -97,16 +110,18 @@ function producer(publishMethod){
       that.emit("ready");
 
       var handler = middleware.prepare(function(config){
-        config.last(function(message, headers){
+        config.last(function(message, middlewareHeaders){
 
-          var properties = {
+          var headers = _.extend({}, middlewareHeaders, properties.headers);
+          
+          var props = _.extend({}, properties, {
             routingKey: that.options.routingKey,
             type: that.options.messageType,
             body: message,
             headers: headers
-          };
+          });
 
-          publishMethod.call(that, message, properties, done);
+          publishMethod.call(that, message, props, done);
         });
       });
 
