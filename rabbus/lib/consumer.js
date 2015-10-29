@@ -37,6 +37,50 @@ Consumer.prototype.stop = function(){
   }
 };
 
+// Private methods
+// ---------------
+
+Consumer.prototype._start = function(){
+  if (this._startPromise){
+    return this._startPromise;
+  }
+
+  var that = this;
+  var rabbit = this.rabbit;
+  var options = this.options;
+  var queueOptions = options.queue;
+  var exchangeOptions = options.exchange;
+  var routingKey = options.routingKey;
+
+  this._startPromise = when.promise(function(resolve, reject){
+
+    var qP = rabbit.addQueue(queueOptions.name, queueOptions);
+    var exP = rabbit.addExchange(
+      exchangeOptions.name, 
+      exchangeOptions.type, 
+      exchangeOptions
+    );
+
+    when.all([exP, qP]).then(function(){
+
+      rabbit
+        .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)
+        .then(function(){
+          resolve();
+        })
+        .then(null, function(err){
+          reject(err);
+        });
+
+    }).then(null, function(err){
+      reject(err);
+    });
+  
+  });
+
+  return this._startPromise;
+};
+
 // Exports
 // -------
 

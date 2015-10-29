@@ -18,43 +18,6 @@ util.inherits(Receiver, Consumer);
 // Instance Methods
 // ----------------
 
-Receiver.prototype._start = function(){
-  if (this._startPromise){
-    return this._startPromise;
-  }
-
-  var that = this;
-  var rabbit = this.rabbit;
-  var exchangeOptions = this.options.exchange;
-  var queueOptions = this.options.queue;
-  var routingKey = this.options.routingKey;
-
-  this._startPromise = when.promise(function(resolve, reject){
-    var qP = rabbit.addQueue(queueOptions.name, queueOptions);
-    var exP = rabbit.addExchange(exchangeOptions.name, exchangeOptions.type, exchangeOptions);
-
-    when.all([exP, qP]).then(function(){
-
-      rabbit
-        .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)
-        .then(function(){
-          resolve();
-        })
-        .then(null, function(err){
-          reject(err);
-        });
-
-    }).then(null, function(err){
-      reject(err);
-    });
-  
-  }).then(null, function(err){
-    that.emitError(err);
-  });
-
-  return this._startPromise;
-};
-
 Receiver.prototype.receive = function(cb){
   var that = this;
   var rabbit = this.rabbit;

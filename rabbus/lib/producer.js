@@ -1,6 +1,5 @@
 var EventEmitter = require("events").EventEmitter;
 var util = require("util");
-var when = require("when");
 
 var optionParser = require("./optionParser");
 var Shire = require("./shire");

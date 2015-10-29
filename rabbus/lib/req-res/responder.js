@@ -17,38 +17,6 @@ util.inherits(Responder, Consumer);
 // Instance Methods
 // ----------------
 
-Responder.prototype._start = function(){
-  var rabbit = this.rabbit;
-  var exchange = this.options.exchange;
-  var queue = this.options.queue;
-  var routingKey = this.options.routingKey;
-
-  if (this._startPromise){
-    return this._startPromise;
-  }
-
-  this._startPromise = when.promise(function(resolve, reject){
-    var qP = rabbit.addQueue(queue.name, queue);
-    var exP = rabbit.addExchange(exchange.name, exchange.type, exchange);
-
-    when.all([qP, exP]).then(function(){
-      rabbit
-        .bindQueue(exchange.name, queue.name, routingKey)
-        .then(function(){
-          resolve();
-        })
-        .then(null, function(err){
-          reject(err);
-        });
-
-    }).then(null, function(err){
-      reject(err);
-    });
-  });
-
-  return this._startPromise;
-};
-
 Responder.prototype.handle = function(cb){
   var that = this;
   var rabbit = this.rabbit;
