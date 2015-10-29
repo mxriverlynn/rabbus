@@ -1,7 +1,7 @@
 {
   "name": "rabbus",
-  "version": "0.4.3",
-  "description": "A highly opinionated set of messaging abstractions for RabbitMQ, built with Wascally",
+  "version": "0.5.0",
+  "description": "A micro-servicebus for RabbitMQ",
   "main": "rabbus/index.js",
   "scripts": {
     "test": "grunt specs"
