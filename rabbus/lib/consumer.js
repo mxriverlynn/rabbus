@@ -64,13 +64,13 @@ Consumer.prototype._start = function(){
 
   this._startPromise = when.promise(function(resolve, reject){
 
-    logger.info("Declaring Queue '" + queueOptions.name + "'");
+    logger.debug("Declaring Queue '" + queueOptions.name + "'");
     logger.debug("With Queue Options");
     logger.debug(queueOptions);
 
     var qP = rabbit.addQueue(queueOptions.name, queueOptions);
 
-    logger.info("Declaring Exchange '" + exchangeOptions.name + "'");
+    logger.debug("Declaring Exchange '" + exchangeOptions.name + "'");
     logger.debug("With Exchange Options");
     logger.debug(exchangeOptions);
 
@@ -82,7 +82,7 @@ Consumer.prototype._start = function(){
 
     when.all([exP, qP]).then(function(){
 
-      logger.info("Add Binding", exchangeOptions.name, queueOptions.name, routingKey);
+      logger.debug("Add Binding", exchangeOptions.name, queueOptions.name, routingKey);
 
       rabbit
         .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)

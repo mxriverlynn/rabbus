@@ -3,8 +3,11 @@ var whistlepunk = require("whistlepunk");
 
 var config =  {
   adapters: {
+    stdOut: {
+      level: 4
+    },
     debug: {
-      level: 4,
+      level: 4
     }
   }
 };
@@ -12,7 +15,7 @@ var config =  {
 var loggerFactory = whistlepunk(postal, config);
 
 function logger(ns){
-  var ns = ns || "logger";
+  var ns = ns || "rabbus";
   var logger = loggerFactory(ns);
   return logger;
 }

@@ -2,6 +2,7 @@ var EventEmitter = require("events").EventEmitter;
 var util = require("util");
 var _ = require("underscore");
 
+var logger = require("./logging")("rabbus.producer");
 var optionParser = require("./optionParser");
 var Shire = require("./shire");
 
@@ -43,8 +44,11 @@ Producer.prototype.request = producer(function(message, properties, cb){
 
 Producer.prototype._start = function(){
   if (this._startPromise){ return this._startPromise; }
-
   var exchange = this.options.exchange;
+
+  logger.info("Declaring exchange", exchange.name);
+  logger.debug("With Exchange Options", exchange);
+
   this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
 
   return this._startPromise;
@@ -54,6 +58,10 @@ Producer.prototype._publish = function(msg, properties, done){
   var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
+
+  properties = _.extend({}, properties, {
+    body: msg
+  });
 
   rabbit
     .publish(exchange.name, properties)
@@ -117,9 +125,12 @@ function producer(publishMethod){
           var props = _.extend({}, properties, {
             routingKey: that.options.routingKey,
             type: that.options.messageType,
-            body: message,
             headers: headers
           });
+
+          logger.info("Publishing Message, Type: '" + that.options.messageType + "', With Routing Key '" + that.options.routingKey + "'");
+          logger.debug("With Properties");
+          logger.debug(props);
 
           publishMethod.call(that, message, props, done);
         });
