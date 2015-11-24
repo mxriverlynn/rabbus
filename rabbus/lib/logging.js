@@ -3,7 +3,7 @@ var whistlepunk = require("whistlepunk");
 
 var config =  {
   adapters: {
-    stdOut: {
+    debug: {
       level: 4,
     }
   }
