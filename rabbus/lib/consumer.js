@@ -2,6 +2,7 @@ var util = require("util");
 var when = require("when");
 var EventEmitter = require("events").EventEmitter;
 
+var logger = require("./logging")("rabbus.consumer");
 var optionParser = require("./optionParser");
 var Shire = require("./shire");
 
@@ -30,6 +31,7 @@ Consumer.prototype.emitError = function(err){
 };
 
 Consumer.prototype.stop = function(){
+  logger.info("Stopping Consumer For '" + this.options.queueOptions.name + "'");
   this.removeAllListeners();
   if (this.subscription) {
     this.subscription.remove();
@@ -62,7 +64,16 @@ Consumer.prototype._start = function(){
 
   this._startPromise = when.promise(function(resolve, reject){
 
+    logger.info("Declaring Queue '" + queueOptions.name + "'");
+    logger.debug("With Queue Options");
+    logger.debug(queueOptions);
+
     var qP = rabbit.addQueue(queueOptions.name, queueOptions);
+
+    logger.info("Declaring Exchange '" + exchangeOptions.name + "'");
+    logger.debug("With Exchange Options");
+    logger.debug(exchangeOptions);
+
     var exP = rabbit.addExchange(
       exchangeOptions.name, 
       exchangeOptions.type, 
@@ -70,6 +81,8 @@ Consumer.prototype._start = function(){
     );
 
     when.all([exP, qP]).then(function(){
+
+      logger.info("Add Binding", exchangeOptions.name, queueOptions.name, routingKey);
 
       rabbit
         .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)
@@ -125,6 +138,8 @@ function consumer(consumerAction){
 
       that.subscription = rabbit.handle(messageType, handler);
       rabbit.startSubscription(queue);
+
+      logger.info("Listening To Queue", queue);
 
     }).then(null, function(err){
       that.emitError(err);
