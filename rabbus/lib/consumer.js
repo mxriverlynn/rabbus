@@ -115,7 +115,6 @@ function consumer(consumerAction){
     var middleware = this.middleware;
 
     this._start().then(function(){
-
       that.emit("ready");
 
       var handler = middleware.prepare(function(config){

@@ -78,6 +78,10 @@ Producer.prototype._request = function(msg, properties, cb){
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
 
+  properties = _.extend({}, properties, {
+    body: msg
+  });
+
   rabbit
     .request(exchange.name, properties)
     .then(function(reply){

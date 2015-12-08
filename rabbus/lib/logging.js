@@ -5,9 +5,6 @@ var config =  {
   adapters: {
     stdOut: {
       level: 4
-    },
-    debug: {
-      level: 4
     }
   }
 };
@@ -15,9 +12,9 @@ var config =  {
 var loggerFactory = whistlepunk(postal, config);
 
 function logger(ns){
-  var ns = ns || "rabbus";
-  var logger = loggerFactory(ns);
-  return logger;
+  ns = ns || "rabbus";
+  var l = loggerFactory(ns);
+  return l;
 }
 
 module.exports = logger;
