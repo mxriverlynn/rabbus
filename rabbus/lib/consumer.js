@@ -31,7 +31,7 @@ Consumer.prototype.emitError = function(err){
 };
 
 Consumer.prototype.stop = function(){
-  logger.info("Stopping Consumer For '" + this.options.queueOptions.name + "'");
+  logger.info("Stopping Consumer For '" + this.options.queue.name + "'");
   this.removeAllListeners();
   if (this.subscription) {
     this.subscription.remove();
@@ -42,11 +42,11 @@ Consumer.prototype.stop = function(){
 Consumer.prototype.consume = consumer(function(actions){
   actions.ack();
 });
-  
+
 Consumer.prototype.handle = consumer(function(actions, response){
   actions.reply(response);
 });
-  
+
 // Private methods
 // ---------------
 
@@ -75,8 +75,8 @@ Consumer.prototype._start = function(){
     logger.debug(exchangeOptions);
 
     var exP = rabbit.addExchange(
-      exchangeOptions.name, 
-      exchangeOptions.type, 
+      exchangeOptions.name,
+      exchangeOptions.type,
       exchangeOptions
     );
 
@@ -96,7 +96,7 @@ Consumer.prototype._start = function(){
     }).then(null, function(err){
       reject(err);
     });
-  
+
   });
 
   return this._startPromise;
@@ -106,7 +106,7 @@ Consumer.prototype._start = function(){
 // ----------------------
 
 function consumer(consumerAction){
-  
+
   return function(cb){
     var that = this;
     var rabbit = this.rabbit;
