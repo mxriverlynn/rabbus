@@ -2,9 +2,9 @@ var util = require("util");
 var when = require("when");
 var EventEmitter = require("events").EventEmitter;
 
-var logger = require("./logging")("rabbus.consumer");
-var optionParser = require("./optionParser");
-var Shire = require("./shire");
+var logger = require("../logging")("rabbus.consumer");
+var optionParser = require("../optionParser");
+var Shire = require("../shire");
 
 // Consumer
 // --------

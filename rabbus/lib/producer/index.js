@@ -2,9 +2,9 @@ var EventEmitter = require("events").EventEmitter;
 var util = require("util");
 var _ = require("underscore");
 
-var logger = require("./logging")("rabbus.producer");
-var optionParser = require("./optionParser");
-var Shire = require("./shire");
+var logger = require("../logging")("rabbus.producer");
+var optionParser = require("../optionParser");
+var Shire = require("../shire");
 
 // Base Producer
 // -------------
