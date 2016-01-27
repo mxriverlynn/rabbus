@@ -70,10 +70,6 @@ Consumer.prototype.consume = function(cb){
   });
 };
 
-// Consumer.prototype.handle = consumer(function(actions, response){
-//   actions.reply(response);
-// });
-
 // Private methods
 // ---------------
 

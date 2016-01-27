@@ -9,7 +9,7 @@ function reportErr(err){
   });
 }
 
-describe("publish / subscribe", function(){
+fdescribe("publish / subscribe", function(){
   var msg1 = {foo: "bar"};
   var msg2 = {baz: "quux"};
   var msgType1 = "pub-sub.messageType.1";
@@ -46,7 +46,7 @@ describe("publish / subscribe", function(){
       });
       sub.on("error", reportErr);
 
-      sub.subscribe(function(data){
+      sub.subscribe(function(data, properties, actions, next){
         publishMessage = data;
         setTimeout(done, 250);
       });
@@ -68,7 +68,6 @@ describe("publish / subscribe", function(){
     var pub, sub, err;
     var pubHandled, subHandled;
     var publishMessage;
-    var nacked = false;
     var handlerError = new Error("error handling message");
 
     beforeEach(function(done){
@@ -89,29 +88,20 @@ describe("publish / subscribe", function(){
         throw handlerError;
       });
 
+      sub.use(function(ex, message, properties, actions, next){
+        err = ex;
+        setTimeout(done, 250);
+      });
+
       function pubIt(){
         pub.publish(msg1);
       }
 
       sub.on("ready", pubIt);
-
-      sub.on("error", function(ex){
-        err = ex;
-        setTimeout(done, 250);
-      });
-
-      sub.on("nack", function(){
-        nacked = true;
-      });
-
     });
 
     it("should raise an error event", function(){
       expect(err).toBe(handlerError);
-    });
-
-    it("should nack the message", function(){
-      expect(nacked).toBe(true);
     });
   });
 
