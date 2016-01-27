@@ -9,7 +9,7 @@ function reportErr(err){
   });
 }
 
-fdescribe("publish / subscribe", function(){
+describe("publish / subscribe", function(){
   var msg1 = {foo: "bar"};
   var msg2 = {baz: "quux"};
   var msgType1 = "pub-sub.messageType.1";

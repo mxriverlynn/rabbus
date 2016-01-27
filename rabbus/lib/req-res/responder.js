@@ -15,7 +15,8 @@ util.inherits(Responder, Consumer);
 // Instance Methods
 // ----------------
 
-Responder.prototype.respond = Consumer.prototype.handle;
+Responder.prototype.respond = Consumer.prototype.consume;
+Responder.prototype.handle = Consumer.prototype.consume;
 
 // Exports
 // -------

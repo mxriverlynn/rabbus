@@ -1,7 +1,7 @@
 var util = require("util");
 var Producer = require("../lib/producer");
 
-describe("producer middleware", function(){
+xdescribe("producer middleware", function(){
 
   function SampleProducer(){
     Producer.call(this, {}, {}, {});

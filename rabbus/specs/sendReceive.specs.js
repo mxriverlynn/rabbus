@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-fdescribe("send / receive", function(){
+describe("send / receive", function(){
   var msgType1 = "send-receive.messageType.1";
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";

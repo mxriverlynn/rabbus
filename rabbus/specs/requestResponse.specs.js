@@ -53,9 +53,9 @@ describe("request / response", function(){
 
       res.on("error", reportErr);
 
-      res.handle(function(data, respond){
+      res.handle(function(data, properties, actions, next){
         requestMessage = data;
-        respond(msg2);
+        actions.reply(msg2);
       });
 
       function makeRequest(){
@@ -75,18 +75,12 @@ describe("request / response", function(){
     it("should handle the response", function(){
       expect(responseMessage.baz).toBe(msg2.baz);
     });
-
-    it("should emit a reply event with the response message", function(){
-      expect(res.emit).toHaveBeenCalledWith("reply", responseMessage);
-    });
-
   });
 
   describe("when a responder throws an error", function(){
     var req, res, err;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
-    var nacked = false;
     var handlerError = new Error("error handling message");
 
     beforeEach(function(done){
@@ -104,8 +98,13 @@ describe("request / response", function(){
         routingKey: routingKey
       });
 
-      res.handle(function(data, respond){
+      res.handle(function(data, properties, actions, next){
         throw handlerError;
+      });
+
+      res.use(function(ex, data, properties, actions, next){
+        err = ex;
+        done();
       });
 
       function makeRequest(){
@@ -116,23 +115,10 @@ describe("request / response", function(){
       }
 
       res.on("ready", makeRequest);
-
-      res.on("error", function(ex){
-        err = ex;
-        done();
-      });
-
-      res.on("nack", function(){
-        nacked = true;
-      });
     });
 
     it("should raise an error event", function(){
       expect(err).toBe(handlerError);
-    });
-
-    it("should nack the message", function(){
-      expect(nacked).toBe(true);
     });
   });
 

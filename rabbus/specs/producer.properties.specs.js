@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-describe("producer properties", function(){
+xdescribe("producer properties", function(){
   var msgType1 = "send-receive.messageType.2";
   var ex1 = "send-receive.ex.2";
   var q1 = "send-receive.q.2";
@@ -35,7 +35,7 @@ describe("producer properties", function(){
         routingKey: rKey
       });
 
-      send.use(function(msg, headers, actions){
+      send.use(function(msg, headers, actions, next){
         headers.what = "wut wut";
         actions.next();
       });
