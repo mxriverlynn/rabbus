@@ -5,6 +5,7 @@ var _ = require("underscore");
 var logger = require("../logging")("rabbus.producer");
 var optionParser = require("../optionParser");
 var Shire = require("../shire");
+var Handler = require("./handler");
 
 // Base Producer
 // -------------
@@ -14,7 +15,7 @@ function Producer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire.Producer();
+  this.middleware = new Shire();
 }
 
 util.inherits(Producer, EventEmitter);
@@ -55,7 +56,6 @@ Producer.prototype._start = function(){
 };
 
 Producer.prototype._publish = function(msg, properties, done){
-  var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
 
@@ -68,13 +68,12 @@ Producer.prototype._publish = function(msg, properties, done){
     .then(function(){
       if (done){ done(); }
     })
-    .then(null, function(err){
-      that.emitError(err);
+    .then(null, (err) => {
+      this.emitError(err);
     });
 };
 
 Producer.prototype._request = function(msg, properties, cb){
-  var that = this;
   var rabbit = this.rabbit;
   var exchange = this.options.exchange;
 
@@ -88,8 +87,8 @@ Producer.prototype._request = function(msg, properties, cb){
       cb(reply.body);
       reply.ack();
     })
-    .then(null, function(err){
-      that.emitError(err);
+    .then(null, (err) => {
+      this.emitError(err);
     });
 };
 
@@ -115,35 +114,35 @@ function producer(publishMethod){
       properties.onComplete = undefined;
     }
 
-    var that = this;
     var middleware = this.middleware;
+    var options = this.options;
 
-    this._start().then(function(){
-      that.emit("ready");
+    this._start().then(() => {
+      this.emit("ready");
 
-      var handler = middleware.prepare(function(config){
-        config.last(function(message, middlewareHeaders){
+      middleware.addAfter((message, middlewareHeaders, actions) => {
 
-          var headers = _.extend({}, middlewareHeaders, properties.headers);
-          
-          var props = _.extend({}, properties, {
-            routingKey: that.options.routingKey,
-            type: that.options.messageType,
-            headers: headers
-          });
+        var headers = _.extend({}, middlewareHeaders, properties.headers);
 
-          logger.info("Publishing Message, Type: '" + that.options.messageType + "', With Routing Key '" + that.options.routingKey + "'");
-          logger.debug("With Properties");
-          logger.debug(props);
-
-          publishMethod.call(that, message, props, done);
+        var props = _.extend({}, properties, {
+          routingKey: options.routingKey,
+          type: options.messageType,
+          headers: headers
         });
+
+        logger.info("Publishing Message, Type: '" + options.messageType + "', With Routing Key '" + options.routingKey + "'");
+        logger.debug("With Properties");
+        logger.debug(props);
+
+        publishMethod.call(this, message, props, done);
+
       });
 
-      handler(data);
+      var handler = new Handler(middleware);
+      handler.handle(data);
         
-    }).then(null, function(err){
-      that.emitError(err);
+    }).then(null, (err) => {
+      this.emitError(err);
     });
   };
 

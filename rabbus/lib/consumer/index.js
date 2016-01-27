@@ -1,10 +1,10 @@
 var util = require("util");
-var when = require("when");
 var EventEmitter = require("events").EventEmitter;
 
 var logger = require("../logging")("rabbus.consumer");
 var optionParser = require("../optionParser");
 var Shire = require("../shire");
+var Handler = require("./handler");
 
 // Consumer
 // --------
@@ -14,7 +14,7 @@ function Consumer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire.Consumer();
+  this.middleware = new Shire();
 }
 
 util.inherits(Consumer, EventEmitter);
@@ -23,7 +23,11 @@ util.inherits(Consumer, EventEmitter);
 // ---
 
 Consumer.prototype.use = function(fn){
-  this.middleware.add(fn);
+  if (fn.length === 5){
+    this.middleware.addErrorHandler(fn);
+  } else {
+    this.middleware.add(fn);
+  }
 };
 
 Consumer.prototype.emitError = function(err){
@@ -39,13 +43,37 @@ Consumer.prototype.stop = function(){
   }
 };
 
-Consumer.prototype.consume = consumer(function(actions){
-  actions.ack();
-});
+Consumer.prototype.consume = function(cb){
+  var rabbit = this.rabbit;
+  var queue = this.options.queue.name;
+  var messageType = this.options.messageType;
+  var middleware = this.middleware;
 
-Consumer.prototype.handle = consumer(function(actions, response){
-  actions.reply(response);
-});
+  this._start().then(() => {
+    this.emit("ready");
+
+    middleware.addAfter((msg, properties, actions, next) => {
+      try {
+        cb(msg, properties, actions);
+      } catch(err) {
+        next(err);
+      }
+    });
+
+    var handler = new Handler(this.middleware);
+    this.subscription = rabbit.handle(messageType, handler.handle);
+    rabbit.startSubscription(queue);
+
+    logger.info("Listening To Queue", queue);
+
+  }).then(null, (err) => {
+    this.emitError(err);
+  });
+};
+
+// Consumer.prototype.handle = consumer(function(actions, response){
+//   actions.reply(response);
+// });
 
 // Private methods
 // ---------------
@@ -55,14 +83,13 @@ Consumer.prototype._start = function(){
     return this._startPromise;
   }
 
-  var that = this;
   var rabbit = this.rabbit;
   var options = this.options;
   var queueOptions = options.queue;
   var exchangeOptions = options.exchange;
   var routingKey = options.routingKey;
 
-  this._startPromise = when.promise(function(resolve, reject){
+  this._startPromise = new Promise(function(resolve, reject){
 
     logger.debug("Declaring Queue '" + queueOptions.name + "'");
     logger.debug("With Queue Options");
@@ -80,7 +107,7 @@ Consumer.prototype._start = function(){
       exchangeOptions
     );
 
-    when.all([exP, qP]).then(function(){
+    Promise.all([exP, qP]).then(function(){
 
       logger.debug("Add Binding", exchangeOptions.name, queueOptions.name, routingKey);
 
@@ -101,50 +128,6 @@ Consumer.prototype._start = function(){
 
   return this._startPromise;
 };
-
-// private helper methods
-// ----------------------
-
-function consumer(consumerAction){
-
-  return function(cb){
-    var that = this;
-    var rabbit = this.rabbit;
-    var queue = this.options.queue.name;
-    var messageType = this.options.messageType;
-    var middleware = this.middleware;
-
-    this._start().then(function(){
-      that.emit("ready");
-
-      var handler = middleware.prepare(function(config){
-        config.on("ack", that.emit.bind(that, "ack"));
-        config.on("nack", that.emit.bind(that, "nack"));
-        config.on("reject", that.emit.bind(that, "reject"));
-        config.on("reply", that.emit.bind(that, "reply"));
-        config.on("error", that.emit.bind(that, "error"));
-
-        config.last(function(msg, properties, actions){
-          var consumed = consumerAction.bind(that, actions);
-          try {
-            cb(msg, consumed);
-          } catch(ex) {
-            actions.nack();
-            that.emitError(ex);
-          }
-        });
-      });
-
-      that.subscription = rabbit.handle(messageType, handler);
-      rabbit.startSubscription(queue);
-
-      logger.info("Listening To Queue", queue);
-
-    }).then(null, function(err){
-      that.emitError(err);
-    });
-  };
-}
 
 // Exports
 // -------

@@ -14,15 +14,15 @@
     "rabbitmq",
     "messaging",
     "message",
-    "servicebus",
     "bus",
+    "servicebus",
     "amqplib",
     "wascally",
     "send",
     "receive",
     "pub",
     "sub",
-    "pub sub",
+    "pubsub",
     "request",
     "response"
   ],
@@ -40,9 +40,13 @@
     "wascally": "^0.2.9"
   },
   "dependencies": {
+    "generic-middleware": "2.0.0",
     "postal": "1.0.7",
-    "underscore": "^1.8.3",
-    "when": "^3.7.3",
+    "underscore": "1.8.3",
     "whistlepunk": "0.3.2"
+  },
+  "engines": {
+    "node": ">=4.0",
+    "npm": ">=2.0"
   }
 }

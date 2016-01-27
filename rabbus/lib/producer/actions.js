@@ -1,20 +1,24 @@
+var util = require("util");
+var events = require("events");
+
 // Constructor
 // -----------
 
-function ProducerActions(config, message){
-  this.config = config;
-  this.message = message;
+function ProducerActions(){
+  events.call(this);
 }
+
+util.inherits(ProducerActions, events);
 
 // Action API
 // ----------
 
 ProducerActions.prototype.next = function(){
-  this.config.emit("next");
+  this.emit("next");
 };
 
 ProducerActions.prototype.error = function(err){
-  this.config.emit("error", err);
+  this.emit("error", err);
 };
 
 // Exports

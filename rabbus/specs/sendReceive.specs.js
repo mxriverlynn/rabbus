@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-describe("send / receive", function(){
+fdescribe("send / receive", function(){
   var msgType1 = "send-receive.messageType.1";
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";
@@ -47,9 +47,9 @@ describe("send / receive", function(){
       });
       rec.on("error", reportErr);
 
-      rec.receive(function(data, ack){
-        ack();
-        sendMessage = data;
+      rec.receive(function(msg, properties, actions){
+        sendMessage = msg;
+        actions.ack();
         done();
       });
 
@@ -70,7 +70,6 @@ describe("send / receive", function(){
     var msg1, send, rec, err;
     var sendHandled, recHandled;
     var sendMessage;
-    var nacked = false;
     var handlerError = new Error("error handling message");
 
     beforeEach(function(done){
@@ -93,32 +92,76 @@ describe("send / receive", function(){
         routingKey: rKey
       });
 
-      rec.receive(function(data, ack){
+      rec.receive(function(message, properties, actions, next){
         throw handlerError;
+      });
+
+      rec.use(function(ex, message, properties, actions, next){
+        err = ex;
+        done();
       });
 
       function sendIt(){
         send.send(msg1);
       }
 
-      rec.on("nack", function(){
-        nacked = true;
+      rec.on("ready", sendIt);
+    });
+
+    it("should call the error handler", function(){
+      expect(err).toBe(handlerError);
+    });
+  });
+
+  describe("when a receiver returns an error", function(){
+    var msg1, send, rec, err;
+    var sendHandled, recHandled;
+    var sendMessage;
+    var handlerError = new Error("error handling message");
+
+    beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
+      send = new Sender(rabbit, {
+        exchange: exchangeConfig,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: exchangeConfig,
+        queue: {
+          name: q1,
+          autoDelete: true
+        },
+        messageType: msgType1,
+        routingKey: rKey
       });
 
-      rec.on("error", function(ex){
+      rec.receive(function(message, properties, actions, next){
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        console.log(next);
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        next(handlerError);
+      });
+
+      rec.use(function(ex, message, properties, actions, next){
         err = ex;
         done();
       });
 
+      function sendIt(){
+        send.send(msg1);
+      }
+
       rec.on("ready", sendIt);
     });
 
-    it("should emit the error from the receiver", function(){
+    it("should call the error handler", function(){
       expect(err).toBe(handlerError);
-    });
-
-    it("should nack the message", function(){
-      expect(nacked).toBe(true);
     });
   });
 

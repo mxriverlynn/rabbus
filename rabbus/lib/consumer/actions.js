@@ -1,40 +1,45 @@
+var util = require("util");
+var events = require("events");
+
 // Constructor
 // -----------
 
-function ConsumerActions(config, message){
-  this.config = config;
+function ConsumerActions(message){
+  events.call(this);
   this.message = message;
 }
+
+util.inherits(ConsumerActions, events);
 
 // Action API
 // ----------
 
 ConsumerActions.prototype.next = function(){
-  this.config.emit("next");
+  this.emit("next");
 };
 
 ConsumerActions.prototype.ack = function(){
   this.message.ack();
-  this.config.emit("ack");
+  this.emit("ack");
 };
 
 ConsumerActions.prototype.nack = function(){
   this.message.nack();
-  this.config.emit("nack");
+  this.emit("nack");
 };
 
 ConsumerActions.prototype.reject = function(){
   this.message.reject();
-  this.config.emit("reject");
+  this.emit("reject");
 };
 
 ConsumerActions.prototype.reply = function(response){
   this.message.reply(response);
-  this.config.emit("reply", response);
+  this.emit("reply", response);
 };
 
 ConsumerActions.prototype.error = function(err){
-  this.config.emit("error", err);
+  this.emit("error", err);
 };
 
 // Exports
