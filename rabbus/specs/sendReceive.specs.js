@@ -140,12 +140,7 @@ fdescribe("send / receive", function(){
       });
 
       rec.receive(function(message, properties, actions, next){
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        console.log(next);
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        next(handlerError);
+        return next(handlerError);
       });
 
       rec.use(function(ex, message, properties, actions, next){

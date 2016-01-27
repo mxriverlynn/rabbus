@@ -1,9 +1,9 @@
+var Middleware = require("generic-middleware");
 var util = require("util");
 var EventEmitter = require("events").EventEmitter;
 
 var logger = require("../logging")("rabbus.consumer");
 var optionParser = require("../optionParser");
-var Shire = require("../shire");
 var Handler = require("./handler");
 
 // Consumer
@@ -14,7 +14,10 @@ function Consumer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire();
+  this.middleware = new Middleware();
+  this.middleware.use((msg, properties, actions, next) => {
+    next();
+  });
 }
 
 util.inherits(Consumer, EventEmitter);
@@ -23,11 +26,7 @@ util.inherits(Consumer, EventEmitter);
 // ---
 
 Consumer.prototype.use = function(fn){
-  if (fn.length === 5){
-    this.middleware.addErrorHandler(fn);
-  } else {
-    this.middleware.add(fn);
-  }
+  this.middleware.use(fn);
 };
 
 Consumer.prototype.emitError = function(err){
@@ -52,9 +51,9 @@ Consumer.prototype.consume = function(cb){
   this._start().then(() => {
     this.emit("ready");
 
-    middleware.addAfter((msg, properties, actions, next) => {
+    middleware.useAfter(null, (msg, properties, actions, next) => {
       try {
-        cb(msg, properties, actions);
+        cb(msg, properties, actions, next);
       } catch(err) {
         next(err);
       }

@@ -1,10 +1,10 @@
 var EventEmitter = require("events").EventEmitter;
 var util = require("util");
 var _ = require("underscore");
+var Middleware = require("generic-middleware");
 
 var logger = require("../logging")("rabbus.producer");
 var optionParser = require("../optionParser");
-var Shire = require("../shire");
 var Handler = require("./handler");
 
 // Base Producer
@@ -15,7 +15,10 @@ function Producer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middleware = new Shire();
+  this.middleware = new Middleware();
+  this.middleware.use((msg, properties, actions, next) => {
+    next();
+  });
 }
 
 util.inherits(Producer, EventEmitter);
@@ -24,7 +27,7 @@ util.inherits(Producer, EventEmitter);
 // ----------
 
 Producer.prototype.use = function(fn){
-  this.middleware.add(fn);
+  this.middleware.use(fn);
 };
 
 Producer.prototype.stop = function(){
@@ -120,7 +123,7 @@ function producer(publishMethod){
     this._start().then(() => {
       this.emit("ready");
 
-      middleware.addAfter((message, middlewareHeaders, actions) => {
+      middleware.useAfter(null, (message, middlewareHeaders, actions, next) => {
 
         var headers = _.extend({}, middlewareHeaders, properties.headers);
 
@@ -135,7 +138,6 @@ function producer(publishMethod){
         logger.debug(props);
 
         publishMethod.call(this, message, props, done);
-
       });
 
       var handler = new Handler(middleware);

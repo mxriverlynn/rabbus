@@ -15,7 +15,7 @@ Handler.prototype.handle = function(message){
   var actions = new Actions();
   var headers = {};
 
-  this.middleware.process(message, headers, actions);
+  this.middleware(message, headers, actions);
 };
 
 // Exports
