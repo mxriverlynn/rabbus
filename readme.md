@@ -51,7 +51,7 @@ how to connect to RabbitMQ.
 
 **Note:** Change directory into the folder for the demo you wish to run.
 
-### Send/Receive
+#### Send/Receive
 
 Located in the [demos/send-receive](demos/send-receive) folder.
 
@@ -61,7 +61,7 @@ to a single receiver.
 * `node send.js`
 * `node receive.js`
 
-### Pub/Sub
+#### Pub/Sub
 
 Located in the [demos/pub-sub](demos/pub-sub) folder.
 
@@ -71,7 +71,7 @@ subscribers receiving one published message.
 * `node publish.js`
 * `node subscriber.js`
 
-### Request/Response
+#### Request/Response
 
 Located in the [demos/request-response](demos/request-response) folder.
 
