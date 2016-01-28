@@ -21,7 +21,7 @@ wascally.configure({
 
   util.inherits(SomeResponder, Rabbus.Responder);
 
-  var responder = new SomeResponder(wascally);
+  var responder = new SomeResponder();
 
   responder.handle(function(message, poperties, actions, next){
     actions.reply({
