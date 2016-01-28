@@ -3,7 +3,7 @@
 The following items should be considered when upgrading
 to / from various versions of Rabbus.
 
-### Form &lt;=v0.6.2 To v0.7.0
+### From &lt;=v0.6.2 To v0.7.0
 
 With v0.7.0, a completely new middleware system was introduced.
 This allows Rabbus to be significantly more flexible, while also
