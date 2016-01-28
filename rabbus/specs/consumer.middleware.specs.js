@@ -11,194 +11,25 @@ function reportErr(err){
   });
 }
 
-xdescribe("consumer middleware", function(){
+describe("consumer middleware", function(){
+  var msg1 = {foo: "bar"};
+  var msg2 = {baz: "quux"};
+  var msgType1 = "pub-sub.messageType.1";
+  var ex1 = "pub-sub.ex.1";
+  var q1 = "pub-sub.q.1";
 
-  function SampleConsumer(){
-    Consumer.call(this, {}, {}, {});
-  }
-
-  util.inherits(SampleConsumer, Consumer);
-
-  SampleConsumer.prototype.handle = function(msg){
-    var that = this;
-    var handler = this.middleware.prepare(function(config){
-      config.last(function(msg, properties, actions){
-        that.emit("handled");
-      });
-    });
-
-    handler(msg);
+  var exConfig = {
+    name: ex1,
+    autoDelete: true
   };
 
-  describe("given a last function with no other middleware, when running", function(){
-    var consumer, result;
+  var qConfig = {
+    name: q1,
+    autoDelete: true
+  };
 
-    beforeEach(function(){
-      consumer = new SampleConsumer();
-
-      consumer.on("handled", function(){
-        result = true;
-      });
-
-      consumer.handle({});
-    });
-
-    it("should run the last function", function(){
-      expect(result).toBe(true);
-    });
-
-  });
-
-  describe("given a last function and a middleware that calls ack, when running", function(){
-    var consumer;
-    var handled = false;
-    var acked = false;
-
-    beforeEach(function(){
-      consumer = new SampleConsumer();
-
-      consumer.use(function(msg, properties, actions){
-        actions.ack();
-      });
-
-      consumer.on("handled", function(){
-        handled = true;
-      });
-
-      consumer.handle({
-        ack: function(){
-          acked = true;
-        }
-      });
-    });
-
-    it("should not call the last middleware", function(){
-      expect(handled).toBe(false);
-    });
-
-    it("should call the message ack", function(){
-      expect(acked).toBe(true);
-    });
-  });
-
-  describe("given a last function and a middleware that calls nack, when running", function(){
-    var consumer;
-    var handled = false;
-    var nacked = false;
-
-    beforeEach(function(){
-      consumer = new SampleConsumer();
-
-      consumer.use(function(msg, properties, actions){
-        actions.nack();
-      });
-
-      consumer.on("handled", function(){
-        handled = true;
-      });
-
-      consumer.handle({
-        nack: function(){
-          nacked = true;
-        }
-      });
-    });
-
-    it("should not call the last middleware", function(){
-      expect(handled).toBe(false);
-    });
-
-    it("should call the message nack", function(){
-      expect(nacked).toBe(true);
-    });
-  });
-
-  describe("given a last function and a middleware that calls reject, when running", function(){
-    var consumer;
-    var handled = false;
-    var rejected = false;
-
-    beforeEach(function(){
-      consumer = new SampleConsumer();
-
-      consumer.use(function(msg, properties, actions){
-        actions.reject();
-      });
-
-      consumer.on("handled", function(){
-        handled = true;
-      });
-
-      consumer.handle({
-        reject: function(){
-          rejected = true;
-        }
-      });
-    });
-
-    it("should not call the last middleware", function(){
-      expect(handled).toBe(false);
-    });
-
-    it("should call the message reject", function(){
-      expect(rejected).toBe(true);
-    });
-  });
-
-  describe("given a last function and a middleware that calls reply, when running", function(){
-    var consumer;
-    var handled = false;
-    var replied = false;
-    var message;
-
-    beforeEach(function(){
-      consumer = new SampleConsumer();
-
-      consumer.use(function(msg, properties, actions){
-        actions.reply("some response");
-      });
-
-      consumer.on("handled", function(){
-        handled = true;
-      });
-
-      consumer.handle({
-        reply: function(msg){
-          replied = true;
-          message = msg;
-        }
-      });
-    });
-
-    it("should not call the last middleware", function(){
-      expect(handled).toBe(false);
-    });
-
-    it("should call the message reply", function(){
-      expect(replied).toBe(true);
-    });
-
-    it("should send the response", function(){
-      expect(message).toBe("some response");
-    });
-  });
-
-  describe("given multiple middleware, when handling multiple messages and calling next on all of them", function(){
-    var pub, sub;
-    var msg1 = {foo: "bar"};
-    var msg2 = {baz: "quux"};
-    var msgType1 = "pub-sub.middleware.1";
-
-    var exConfig = {
-      name: "pub-sub.middleware.ex.1",
-      autoDelete: true
-    };
-
-    var qConfig = {
-      name: "pub-sub.middleware.q.1",
-      autoDelete: true
-    };
-    var m1=[], m2=[], m3=[], last=[];
+  describe("given handler function with no other middleware", function(done){
+    var pub, sub, result;
 
     beforeEach(function(done){
       pub = new Publisher(rabbit, {
@@ -215,48 +46,106 @@ xdescribe("consumer middleware", function(){
       });
       sub.on("error", reportErr);
 
-      sub.use(function(msg, properties, actions){
-        m1.push(true);
-        actions.next();
-      });
+      result = false;
 
-      sub.use(function(msg, properties, actions){
-        m2.push(true);
-        actions.next();
-      });
-
-      sub.use(function(msg, properties, actions){
-        m3.push(true);
-        actions.next();
-      });
-
-      var subCount = 0;
-      sub.subscribe(function(data){
-        subCount += 1;
-        last.push(true);
-
-        if (subCount === 2){
-          done();
-        }
+      sub.subscribe(function(msg, properties, actions, next){
+        result = true;
+        actions.ack();
+        setTimeout(done, 250);
       });
 
       function pubIt(){
         pub.publish(msg1);
-        pub.publish(msg2);
       }
 
       sub.on("ready", pubIt);
     });
 
-    it("should handle all of them", function(){
-      expect(m1[0]).toBe(true);
-      expect(m1[1]).toBe(true);
-      expect(m2[0]).toBe(true);
-      expect(m2[1]).toBe(true);
-      expect(m3[0]).toBe(true);
-      expect(m3[1]).toBe(true);
-      expect(last[0]).toBe(true);
-      expect(last[1]).toBe(true);
+    it("should run the handler", function(){
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("given a handler function and a middleware that calls ack, when running", function(){
+    var pub, sub, result;
+
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
+
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      result = false;
+
+      sub.use(function(msg, properties, actions, next){
+        actions.ack();
+        setTimeout(done, 250);
+      });
+
+      sub.subscribe(function(msg, properties, actions, next){
+        result = true;
+      });
+
+      function pubIt(){
+        pub.publish(msg1);
+      }
+
+      sub.on("ready", pubIt);
+    });
+
+    it("should not run the handler", function(){
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("given a handler function and a middleware that calls next, when running", function(){
+    var pub, sub, result;
+
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
+
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      result = false;
+
+      sub.use(function(msg, properties, actions, next){
+        next();
+      });
+
+      sub.subscribe(function(msg, properties, actions, next){
+        result = true;
+        actions.ack();
+        setTimeout(done, 250);
+      });
+
+      function pubIt(){
+        pub.publish(msg1);
+      }
+
+      sub.on("ready", pubIt);
+    });
+
+    it("should run the handler", function(){
+      expect(result).toBe(true);
     });
   });
 
