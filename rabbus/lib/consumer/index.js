@@ -2,9 +2,9 @@ var Middleware = require("generic-middleware");
 var util = require("util");
 var EventEmitter = require("events").EventEmitter;
 
+var Actions = require("./actions");
 var logger = require("../logging")("rabbus.consumer");
 var optionParser = require("../optionParser");
-var Handler = require("./handler");
 
 // Consumer
 // --------
@@ -59,12 +59,17 @@ Consumer.prototype.consume = function(cb){
       }
     });
 
-    var handler = new Handler(this.middleware);
-    this.subscription = rabbit.handle(messageType, handler.handle);
+    this.subscription = rabbit.handle(messageType, (message) => {
+      var actions = new Actions(message);
+      var body = message.body;
+      var properties = message.properties;
+
+      this.middleware(body, properties, actions);
+    });
+
     rabbit.startSubscription(queue);
 
     logger.info("Listening To Queue", queue);
-
   }).then(null, (err) => {
     this.emitError(err);
   });
