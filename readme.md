@@ -7,8 +7,6 @@ for working with RabbitMQ.
 
 ## About Rabbus
 
-[![Build Status](https://travis-ci.org/derickbailey/rabbus.svg?branch=master)](https://travis-ci.org/derickbailey/rabbus)
-
 The service bus implementation is basic, but includes several of the most 
 common patterns:
 
