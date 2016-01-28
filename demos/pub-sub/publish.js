@@ -1,15 +1,15 @@
 var util = require("util");
-var Rabbit = require("wascally");
+var wascally = require("wascally");
 
-var Rabbus = require("../../rabbus");
+var Rabbus = require("../../rabbus/lib");
 var config = require("../../rabbus/specs/config");
 
-Rabbit.configure({
+wascally.configure({
   connection: config
 }).then(function(){;
 
-  function SomePublisher(rabbus){
-    Rabbus.Publisher.call(this, rabbus, {
+  function SomePublisher(){
+    Rabbus.Publisher.call(this, wascally, {
       exchange: "pub-sub.exchange",
       routingKey: "pub-sub.key",
       messageType: "pub-sub.messageType"
@@ -18,7 +18,7 @@ Rabbit.configure({
 
   util.inherits(SomePublisher, Rabbus.Publisher);
 
-  var publisher = new SomePublisher(Rabbit);
+  var publisher = new SomePublisher();
   var message = {
     place: "world"
   };
@@ -36,7 +36,7 @@ Rabbit.configure({
 function exit(){
   console.log("");
   console.log("shutting down ...");
-  Rabbit.closeAll().then(function(){
+  wascally.closeAll().then(function(){
     process.exit();
   });
 }

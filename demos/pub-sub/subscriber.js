@@ -1,15 +1,15 @@
 var util = require("util");
-var Rabbit = require("wascally");
+var wascally = require("wascally");
 
-var Rabbus = require("../../rabbus");
+var Rabbus = require("../../rabbus/lib");
 var config = require("../../rabbus/specs/config");
 
-Rabbit.configure({
+wascally.configure({
   connection: config
 }).then(function(){;
 
-  function SomeSubscriber(rabbus){
-    Rabbus.Subscriber.call(this, rabbus, {
+  function SomeSubscriber(){
+    Rabbus.Subscriber.call(this, wascally, {
       exchange: "pub-sub.exchange",
       queue: "pub-sub.queue",
       routingKey: "pub-sub.key",
@@ -19,19 +19,22 @@ Rabbit.configure({
 
   util.inherits(SomeSubscriber, Rabbus.Subscriber);
 
-  var sub1 = new SomeSubscriber(Rabbit);
-  sub1.subscribe(function(message){
+  var sub1 = new SomeSubscriber();
+  sub1.subscribe(function(message, properties, actions, next){
     console.log("1: hello", message.place);
+    actions.ack();
   });
 
-  var sub2 = new SomeSubscriber(Rabbit);
-  sub2.subscribe(function(message){
+  var sub2 = new SomeSubscriber();
+  sub2.subscribe(function(message, properties, actions, next){
     console.log("2: hello", message.place);
+    actions.ack();
   });
 
-  var sub3 = new SomeSubscriber(Rabbit);
-  sub3.subscribe(function(message){
+  var sub3 = new SomeSubscriber();
+  sub3.subscribe(function(message, properties, actions, next){
     console.log("3: hello", message.place);
+    actions.ack();
   });
 
 }).then(null, function(err){
@@ -43,7 +46,7 @@ Rabbit.configure({
 function exit(){
   console.log("");
   console.log("shutting down ...");
-  Rabbit.closeAll().then(function(){
+  wascally.closeAll().then(function(){
     process.exit();
   });
 }
@@ -53,6 +56,6 @@ process.once("SIGINT", function(){
 });
 
 process.on("unhandledException", function(err){
-  console.log(err);
+  console.log(err.stack);
   exit();
 });
