@@ -23,7 +23,16 @@ util.inherits(SomeRequester, Rabbus.Requester);
 connection(function(){
   var requester = new SomeRequester();
 
-  var msg = {};
+  // basic error handler
+  requester.use(function(err, message, headers, next){
+    setImmediate(function(){ throw err; });
+  });
+
+  var msg = {
+    some: "cool stuff"
+  };
+
+  // send the request
   requester.request(msg, function(response, done){
     console.log("Hello", response.place);
     done();

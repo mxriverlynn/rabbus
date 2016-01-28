@@ -24,6 +24,12 @@ util.inherits(SomeReceiver, Rabbus.Receiver);
 connection(function(){
   var receiver = new SomeReceiver();
 
+  // basic error handler
+  receiver.use(function(err, msg, props, actions, next){
+    setTimeout(function(){ throw err; });
+  });
+
+  // receive a message
   receiver.receive(function(message, properties, actions, next){
     console.log("hello", message.place);
     actions.ack();

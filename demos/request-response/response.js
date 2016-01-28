@@ -25,7 +25,13 @@ util.inherits(SomeResponder, Rabbus.Responder);
 
 connection(function(){
   var responder = new SomeResponder();
+  
+  // basic error handler
+  responder.use(function(err, msg, props, actions, next){
+    setTimeout(function(){ throw err; });
+  });
 
+  // handle the request and send a response
   responder.handle(function(message, poperties, actions, next){
     actions.reply({
       place: "world"

@@ -22,10 +22,17 @@ util.inherits(SomeSender, Rabbus.Sender);
 
 connection(function(){
   var sender = new SomeSender();
+
+  // basic error handler
+  sender.use(function(err, message, headers, next){
+    setImmediate(function(){ throw err; });
+  });
+
   var message = {
     place: "world"
   };
 
+  // send the message
   sender.send(message, function(){
     console.log("sent a message");
   });

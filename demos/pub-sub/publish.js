@@ -22,10 +22,17 @@ util.inherits(SomePublisher, Rabbus.Publisher);
 
 connection(function(){
   var publisher = new SomePublisher();
+
+  // basic error handler
+  publisher.use(function(err, message, headers, next){
+    setImmediate(function(){ throw err; });
+  });
+
   var message = {
     place: "world"
   };
 
+  // publish the message
   publisher.publish(message, function(){
     console.log("published an event!");
   });

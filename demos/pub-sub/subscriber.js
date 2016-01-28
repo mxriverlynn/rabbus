@@ -22,21 +22,29 @@ util.inherits(SomeSubscriber, Rabbus.Subscriber);
 // -------------------------------------------
 
 connection(function(){
+  // first subscriber
   var sub1 = new SomeSubscriber();
+
+  // basic error handler
+  sub1.use(function(err, msg, props, actions, next){
+    setTimeout(function(){ throw err; });
+  });
+
   sub1.subscribe(function(message, properties, actions, next){
     console.log("1: hello", message.place);
     actions.ack();
   });
 
+  // second subscriber
   var sub2 = new SomeSubscriber();
-  sub2.subscribe(function(message, properties, actions, next){
-    console.log("2: hello", message.place);
-    actions.ack();
+ 
+  // basic error handler
+  sub2.use(function(err, msg, props, actions, next){
+    setTimeout(function(){ throw err; });
   });
 
-  var sub3 = new SomeSubscriber();
-  sub3.subscribe(function(message, properties, actions, next){
-    console.log("3: hello", message.place);
+  sub2.subscribe(function(message, properties, actions, next){
+    console.log("2: hello", message.place);
     actions.ack();
   });
 });
