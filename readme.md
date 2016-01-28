@@ -58,73 +58,6 @@ of the repository.
 Please see the [Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
 on configuring RabbitMQ.
 
-### General Error Handling
-
-In general, each of the objects in Rabbus will emit an "error"
-message when an error occurs. You can use standard NodeJS
-EventEmitter functions to subscribe / unsubscribe the error
-events.
-
-```js
-var sub = new Subscriber(...);
-sub.on("error", function(err){
-  // do something with the err object, here
-});
-```
-
-### Sending Custom Message Properties
-
-RabbitMQ allows you to specify any number of custom headers and other properties,
-and [Wascally](https://github.com/LeanKit-Labs/wascally) allows you to manipulate
-them as needed.
-
-With Rabbus, you can also pass any arbitrary properties or headers that you wish,
-when sending a message. This is done in a few ways.
-
-0. Middleware - see the documentation below
-0. A key/value list when sending a message
-
-To use a key/value list, provide an object with keys / values in either the
-`send` or `publish` method of the Sender / Publisher objects (below).
-
-For example:
-
-```js
-sender.send(someMessage, {
-  expiresAfter: 1000,
-  headers: {
-    foo: "bar"
-  }
-});
-```
-
-This will send a message with a TTL of 1 second (1000ms), and a header of
-`foo: bar`.
-
-### Callback After Sending message
-
-If you want to specify both a properties object and provide a callback
-method to fire after the message is sent, the callback can be specified as an
-`onComplete` attribute of the properties:
-
-```js
-sender.send(someMessage, {
-  expiresAfter: 1000,
-  onComplete: function(){
-    console.log("the message has been sent!");
-  }
-});
-```
-
-If you don't specify an object literal, you can provide a callback function
-directly as the second parameter.
-
-```js
-sender.send(someMessage, function(){
-  console.log("the message has been sent!");
-});
-```
-
 ## Send / Receive
 
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
@@ -204,9 +137,11 @@ util.inherits(SomeReceiver, Rabbus.Receiver);
 
 var receiver = new SomeReceiver();
 
-receiver.receive(function(message, done){
+receiver.receive(function(message, properties, actions, next){
   console.log("hello", message.place);
-  done();
+
+  // mark this message as complete, by acknowledging it
+  actions.ack();
 });
 ```
 
@@ -306,18 +241,21 @@ util.inherits(SomeSubscriber, Rabbus.Subscriber);
 // ----------------------
 
 var sub1 = new SomeSubscriber();
-sub1.subscribe(function(message){
+sub1.subscribe(function(message, properties, actions, next){
   console.log("1: hello", message.place);
+  actions.ack();
 });
 
 var sub2 = new SomeSubscriber();
-sub2.subscribe(function(message){
+sub2.subscribe(function(message, properties, actions, next){
   console.log("2: hello", message.place);
+  actions.ack();
 });
 
 var sub3 = new SomeSubscriber();
-sub3.subscribe(function(message){
+sub3.subscribe(function(message, properties, actions, next){
   console.log("3: hello", message.place);
+  actions.ack();
 });
 ```
 
@@ -423,8 +361,8 @@ util.inherits(SomeResponder, Rabbus.Responder);
 
 var responder = new SomeResponder(Rabbus);
 
-responder.handle(function(message, respond){
-  respond({
+responder.handle(function(message, properties, actions, next){
+  actions.reply({
     place: "world"
   });
 });
@@ -452,6 +390,89 @@ create the binding between the two.
 * **messageType** (string): the type of message to handle for this subscriber instance
 * **routingKey** (string): the routing key to use for binding the exchange and queue
 * **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
+
+### General Error Handling
+
+Rabbus uses a middleware structure (see below) to both produce and consume 
+messages, similar to that of Express.js. As such, errors are generally 
+pushed through the `next(err)` call, and handled through an error handling 
+middleware function.
+
+```js
+myProducer.use(function(err, message, properties, actions, next){
+
+  // handle the error, here
+  console.log(err.stack);
+
+});
+```
+
+#### Non-Middleware Errors
+
+Each of the objects in Rabbus will also emit an "error"
+message when an error occurs outside of the middleware stack. 
+You can use standard NodeJS EventEmitter functions to 
+subscribe / unsubscribe the error events.
+
+```js
+var sub = new Subscriber(...);
+sub.on("error", function(err){
+  // do something with the err object, here
+});
+```
+
+### Sending Custom Message Properties
+
+RabbitMQ allows you to specify any number of custom headers and other properties,
+and [Wascally](https://github.com/LeanKit-Labs/wascally) allows you to manipulate
+them as needed.
+
+With Rabbus, you can also pass any arbitrary properties or headers that you wish,
+when sending a message. This is done in a few ways.
+
+0. Middleware - see the documentation below
+0. A key/value list when sending a message
+
+To use a key/value list, provide an object with keys / values in either the
+`send` or `publish` method of the Sender / Publisher objects (below).
+
+For example:
+
+```js
+sender.send(someMessage, {
+  expiresAfter: 1000,
+  headers: {
+    foo: "bar"
+  }
+});
+```
+
+This will send a message with a TTL of 1 second (1000ms), and a header of
+`foo: bar`.
+
+### Callback After Sending message
+
+If you want to specify both a properties object and provide a callback
+method to fire after the message is sent, the callback can be specified as an
+`onComplete` attribute of the properties:
+
+```js
+sender.send(someMessage, {
+  expiresAfter: 1000,
+  onComplete: function(){
+    console.log("the message has been sent!");
+  }
+});
+```
+
+If you don't specify an object literal, you can provide a callback function
+directly as the second parameter.
+
+```js
+sender.send(someMessage, function(){
+  console.log("the message has been sent!");
+});
+```
 
 ## Limit Message Processing
 
@@ -516,7 +537,7 @@ on whether you're using a producer or consumer.
 The `use` method on consumers takes a callback with this signature:
 
 ```js
-consumer.use(function(message, properties, actions){
+consumer.use(function(message, properties, actions, next){
 
 });
 ```
@@ -526,11 +547,11 @@ The parameters are as follows:
 * **message**: the message body
 * **properties**: the properties of the message, including headers, etc.
 * **actions**: an object containing various methods for interaction with the RabbitMQ message, and to continue the middleware chain
-  * **next()**: this middleware is done, and the next one can be called
   * **ack()**: the message is completely processed. acknowledge to the server. prevents any additional middleware from running
   * **nack()**: the message cannot be processed, and should be re-queued for later. prevents any additional middleware from running
   * **reject()**: the message cannot be processed and should not be re-queued. be sure you have a dead-letter queue before using this. prevents any additional middleware from running
   * **reply(msg)**: send a reply back to the requester, during a request/response scenario. prevents any additional middleware from running
+* **next()**: this middleware is done, and the next one can be called; call `next(err)` to forward an error to error handling middleware functions
 
 #### Consumer Middleware Examples
 
@@ -539,13 +560,13 @@ As an example, you could log every message that gets sent through your consumer:
 ```js
 var mySubscriber = new MySubscriber();
 
-mySubscriber.use(function(message, properties, actions){
+mySubscriber.use(function(message, properties, actions, next){
 
   console.log("Got a message. Doing stuff with middleware.");
   console.log(message);
 
   // allow the middleware chain to continue
-  actions.next();
+  next();
 });
 ```
 
@@ -555,7 +576,7 @@ some condition is not yet met.
 ```js
 var rec = new SomeReceiver();
 
-rec.use(function(message, properties, actions){
+rec.use(function(message, properties, actions, next){
 
   // check some conditions
   if (message.someData && someOtherSystem.stuffNotReady()){
@@ -566,13 +587,13 @@ rec.use(function(message, properties, actions){
   } else {
 
     // everything is good to go, allow the next middleware to run
-    actions.next();
+    next();
 
   }
 });
 ```
 
-**WARNING:** If you forget to call `.next()` or one of the other actions,
+**WARNING:** If you forget to call `next()` or one of the other actions,
 your message will be stuck in limbo, unacknowledged. 
 
 ### Producer Middleware
@@ -580,7 +601,7 @@ your message will be stuck in limbo, unacknowledged.
 The `use` method on consumers takes a callback with this signature:
 
 ```js
-producer.use(function(message, headers, actions){
+producer.use(function(message, headers, next){
 
 });
 ```
@@ -589,8 +610,7 @@ The parameters are as follows:
 
 * **message**: the message body, which you can transform as needed
 * **headers**: the headers of the message, which can be altered in any way you need
-* **actions**: an object containing various methods for interaction with the RabbitMQ message, and to continue the middleware chain
-  * **next()**: this middleware is done, and the next one can be called
+* **next()**: this middleware is done, and the next one can be called; call `next(err)` to forward an error to the error handlers
 
 #### Producer Middleware Examples
 
@@ -602,7 +622,7 @@ of the message.
 ```js
 var myPub = new MyPublisher();
 
-myPub.use(function(message, headers, actions){
+myPub.use(function(message, headers, actions, next){
 
   var hasFoo = !!(message.foo);
 
@@ -616,11 +636,11 @@ myPub.use(function(message, headers, actions){
   headers.hasFoo = hasFoo;
 
   // allow the middleware chain to continue
-  actions.next();
+  next();
 });
 ```
 
-**WARNING:** If you forget to call `.next()` in your middleware,
+**WARNING:** If you forget to call `next()` in your middleware,
 the message will never be published. While this is generally dangerous, it can
 be used to stop messages that should not be sent.
 
@@ -633,24 +653,24 @@ For example, if you have a consumer that handles a message and then adds
 some middleware, you will have the middleware processed first.
 
 ```js
-sub.handle("message.type", function(msg, done){
+sub.handle("message.type", function(msg, properties, actions, next){
   console.log("handler fires last");
-  done();
+  actions.ack();
 });
 
-sub.use(function(msg, prop, act){
+sub.use(function(msg, props, actions, next){
   console.log("first middleware");
-  act.next();
+  next();
 });
 
-sub.use(function(msg, prop, act){
+sub.use(function(msg, props, actions, next){
   console.log("second middleware");
-  act.next();
+  next();
 });
 
-sub.use(function(msg, prop, act){
+sub.use(function(msg, props, actions, next){
   console.log("third middleware");
-  act.next();
+  next();
 });
 ```
 
@@ -669,6 +689,6 @@ handled before the middleware is in place.
 
 ## Legalese
 
-Rabbus is Copyright &copy;2015 Muted Solutions, LLC. All Rights Reserved. 
+Rabbus is Copyright &copy;2016 Muted Solutions, LLC. All Rights Reserved. 
 
 Rabbus is distributed under the [MIT license](http://mutedsolutions.mit-license.org).
