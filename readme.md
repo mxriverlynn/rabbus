@@ -82,7 +82,7 @@ location information.
 * `node request.js`
 * `node response.js`
 
-## Using Rabbus
+## About Rabbus' Built-In Patterns
 
 There are three pairs of objects that come with Rabbus, as noted in the above
 patterns. Each of them is meant to be used in combination with it's pair. You
