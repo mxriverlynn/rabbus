@@ -104,7 +104,7 @@ of the repository.
 Please see the [Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
 on configuring RabbitMQ.
 
-## Basic Publish and Subscribe Methods
+### Basic Publish and Subscribe Methods
 
 Rabbus uses a base message producer and consumer object to provide
 the functionality of all message producers and consumers. This gives
