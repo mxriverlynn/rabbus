@@ -1,15 +1,15 @@
 var util = require("util");
-var Rabbit = require("wascally");
+var wascally = require("wascally");
 
-var Rabbus = require("../../rabbus");
+var Rabbus = require("../../rabbus/lib");
 var config = require("../../rabbus/specs/config");
 
-Rabbit.configure({
+wascally.configure({
   connection: config
 }).then(function(){;
   
-  function SomeRequester(rabbus){
-    Rabbus.Requester.call(this, rabbus, {
+  function SomeRequester(){
+    Rabbus.Requester.call(this, wascally, {
       exchange: "req-res.exchange",
       messageType: "req-res.messageType",
       routingKey: "req-res.key"
@@ -18,7 +18,7 @@ Rabbit.configure({
 
   util.inherits(SomeRequester, Rabbus.Requester);
 
-  var requester = new SomeRequester(Rabbit);
+  var requester = new SomeRequester();
 
   var msg = {};
   requester.request(msg, function(response, done){
@@ -35,7 +35,7 @@ Rabbit.configure({
 function exit(){
   console.log("");
   console.log("shutting down ...");
-  Rabbit.closeAll().then(function(){
+  wascally.closeAll().then(function(){
     process.exit();
   });
 }
