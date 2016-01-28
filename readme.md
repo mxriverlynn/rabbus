@@ -36,6 +36,47 @@ Please note that Wascally is explicitly NOT mentioned as a dependency in the
 Rabbus package.json file for runtime dependencies. This is done with intent, to help prevent library
 version conflicts.
 
+## Rabbus Demos
+
+There are several demos available to show the basic use of Rabbus. These demos
+can be found in the [/demos](demos) folder:
+
+Be sure to look at the `demos/connection.js` file for an example of
+how to connect to RabbitMQ.
+
+**Note:** Change directory into the folder for the demo you wish to run.
+
+### Send/Receive
+
+Located in the [demos/send-receive](demos/send-receive) folder.
+
+Demonstrate the send/receive pattern, to send a single message
+to a single receiver.
+
+* `node send.js`
+* `node receive.js`
+
+### Pub/Sub
+
+Located in the [demos/pub-sub](demos/pub-sub) folder.
+
+Demonstrate the publish/subscribe pattern, with multiple
+subscribers receiving one published message.
+
+* `node publish.js`
+* `node subscriber.js`
+
+### Request/Response
+
+Located in the [demos/request-response](demos/request-response) folder.
+
+Demonstrate the request/response pattern with a request being
+made for a location, and a response being sent with the
+location information.
+
+* `node request.js`
+* `node response.js`
+
 ## Using Rabbus
 
 There are three pairs of objects that come with Rabbus, as noted in the above
