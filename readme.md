@@ -99,6 +99,27 @@ of the repository.
 Please see the [Wascally](https://github.com/LeanKit-Labs/wascally) documentation for information
 on configuring RabbitMQ.
 
+## Basic Publish and Subscribe Methods
+
+Rabbus uses a base message producer and consumer object to provide
+the functionality of all message producers and consumers. This gives
+a consistent API to all objects, and makes it easy to create your own
+patterns and extend the Rabbus feature set.
+
+All message consumers receive a common set of parameters when
+consuming the message:
+
+```js
+obj.consumerMethod(function(message, properties, actions, next){
+});
+```
+
+Each of these parameters gives you specific information or callable
+function to continue processing or completing the process.
+
+For definitions of these parameters, please see the [middleware section](#extending-rabbus-w-middleware)
+section of the documentation, below.
+
 ## Send / Receive
 
 The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
