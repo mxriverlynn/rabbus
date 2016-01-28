@@ -36,6 +36,11 @@ Please note that Wascally is explicitly NOT mentioned as a dependency in the
 Rabbus package.json file for runtime dependencies. This is done with intent, to help prevent library
 version conflicts.
 
+## Upgrading Rabbus
+
+If you are upgrading Rabbus from a previous version, be sure to
+read [the Upgrade Guide](UPGRADING.md).
+
 ## Rabbus Demos
 
 There are several demos available to show the basic use of Rabbus. These demos
