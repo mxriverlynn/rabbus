@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-xdescribe("producer properties", function(){
+describe("producer properties", function(){
   var msgType1 = "send-receive.messageType.2";
   var ex1 = "send-receive.ex.2";
   var q1 = "send-receive.q.2";
@@ -35,9 +35,9 @@ xdescribe("producer properties", function(){
         routingKey: rKey
       });
 
-      send.use(function(msg, headers, actions, next){
+      send.use(function(msg, headers, next){
         headers.what = "wut wut";
-        actions.next();
+        next();
       });
       send.on("error", reportErr);
 
@@ -52,14 +52,14 @@ xdescribe("producer properties", function(){
       });
       rec.on("error", reportErr);
 
-      rec.use(function(msg, properties, actions){
+      rec.use(function(msg, properties, actions, next){
         msgHeaders = properties.headers;
-        actions.next();
+        next();
       });
 
-      rec.receive(function(data, ack){
-        ack();
-        done();
+      rec.receive(function(data, properties, actions, next){
+        actions.ack();
+        setTimeout(done, 250);
       });
 
       function sendIt(){
@@ -107,9 +107,9 @@ xdescribe("producer properties", function(){
       });
       rec.on("error", reportErr);
 
-      rec.receive(function(data, ack){
-        ack();
-        done();
+      rec.receive(function(message, properties, actions, next){
+        actions.ack();
+        setTimeout(done, 250);
       });
 
       function sendIt(){

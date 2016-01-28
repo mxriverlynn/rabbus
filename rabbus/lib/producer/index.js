@@ -5,7 +5,6 @@ var Middleware = require("generic-middleware");
 
 var logger = require("../logging")("rabbus.producer");
 var optionParser = require("../optionParser");
-var Handler = require("./handler");
 
 // Base Producer
 // -------------
@@ -16,7 +15,7 @@ function Producer(rabbit, options, defaults){
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
   this.middleware = new Middleware();
-  this.middleware.use((msg, properties, actions, next) => {
+  this.middleware.use((msg, headers, next) => {
     next();
   });
 }
@@ -123,8 +122,7 @@ function producer(publishMethod){
     this._start().then(() => {
       this.emit("ready");
 
-      middleware.useAfter(null, (message, middlewareHeaders, actions, next) => {
-
+      middleware.useAfter(null, (message, middlewareHeaders, next) => {
         var headers = _.extend({}, middlewareHeaders, properties.headers);
 
         var props = _.extend({}, properties, {
@@ -140,8 +138,7 @@ function producer(publishMethod){
         publishMethod.call(this, message, props, done);
       });
 
-      var handler = new Handler(middleware);
-      handler.handle(data);
+      middleware(data, {});
         
     }).then(null, (err) => {
       this.emitError(err);

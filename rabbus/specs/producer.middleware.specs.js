@@ -1,186 +1,158 @@
 var util = require("util");
-var Producer = require("../lib/producer");
+var rabbit = require("wascally");
+var Publisher = require("../lib/pub-sub/publisher");
+var Subscriber = require("../lib/pub-sub/subscriber");
 
-xdescribe("producer middleware", function(){
+function reportErr(err){
+  setImmediate(function(){
+    console.log(err.stack);
+    throw err;
+  });
+}
 
-  function SampleProducer(){
-    Producer.call(this, {}, {}, {});
-  }
+describe("producer middleware", function(){
+  var msg1 = {foo: "bar"};
+  var msg2 = {baz: "quux"};
+  var msgType1 = "pub-sub.messageType.1";
+  var ex1 = "pub-sub.ex.1";
+  var q1 = "pub-sub.q.1";
 
-  util.inherits(SampleProducer, Producer);
-
-  SampleProducer.prototype.send = function(msg){
-    var that = this;
-    var handler = this.middleware.prepare(function(config){
-      config.last(function(msg, headers, actions){
-        that.emit("handled", msg, headers);
-      });
-    });
-
-    handler(msg);
+  var exConfig = {
+    name: ex1,
+    autoDelete: true
   };
 
-  describe("given a last function with no other middleware, when running", function(){
-    var message;
-    var result = false;
-    var origMsg = {
-      foo: "bar"
-    };
+  var qConfig = {
+    name: q1,
+    autoDelete: true
+  };
 
-    beforeEach(function(){
-      var producer = new SampleProducer();
-      producer.on("handled", function(msg){
-        message = msg;
-        result = true;
+  describe("given middleware to use", function(done){
+    var results, pub, sub;
+
+    beforeEach(function(done){
+      results = [];
+
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
       });
-      producer.send(origMsg);
-    });
+      pub.on("error", reportErr);
 
-    it("should run the last function", function(){
-      expect(result).toBe(true);
-    });
-
-    it("should send the message through", function(){
-      expect(message).toBe(origMsg);
-    });
-  });
-
-  describe("given a last function with middleware, when running", function(){
-    var message;
-    var results = [];
-    var origMsg = {
-      foo: "bar"
-    };
-
-    beforeEach(function(){
-      var producer = new SampleProducer();
-      producer.on("handled", function(msg){
-        message = msg;
-        results.push("final");
-      });
-
-      producer.use(function(msg, hdr, actions){
+      pub.use(function(msg, hdr, next){
         results.push("m1");
-        actions.next();
+        next();
       });
 
-      producer.use(function(msg, hdr, actions){
+      pub.use(function(msg, hdr, next){
         results.push("m2");
-        actions.next();
+        next();
       });
 
-      producer.send(origMsg);
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      sub.subscribe(function(msg, properties, actions, next){
+        actions.ack();
+        setTimeout(done, 250);
+      });
+
+      sub.on("ready", function(){
+        pub.publish(msg1);
+      });
     });
 
     it("should run the middleware in order", function(){
       expect(results[0]).toBe("m1");
       expect(results[1]).toBe("m2");
-      expect(results[2]).toBe("final");
-    });
-
-    it("should send the message through", function(){
-      expect(message).toBe(origMsg);
     });
   });
 
   describe("when a middleware does not call next", function(){
-    var result = false;
-    var origMsg = {
-      foo: "bar"
-    };
+    var handled, pub, sub;
 
-    beforeEach(function(){
-      var producer = new SampleProducer();
+    beforeEach(function(done){
+      handled = false;
 
-      producer.on("handled", function(msg){
-        result = true;
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
+
+      pub.use(function(msg, hdr, next){
+        setTimeout(done, 250);
       });
 
-      producer.use(function(){
-        // DO NOT CALL NEXT in this one
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      sub.subscribe(function(msg, properties, actions, next){
+        handled = true;
+        actions.ack();
       });
 
-      producer.send(origMsg);
+      sub.on("ready", function(){
+        pub.publish(msg1);
+      });
     });
 
+
     it("should NOT run the last function", function(){
-      expect(result).toBe(false);
+      expect(handled).toBe(false);
     });
   });
 
   describe("when a middleware changes the headers", function(){
+    var pub, sub;
     var headers;
     var origMsg = {
       foo: "bar"
     };
 
-    beforeEach(function(){
-      var producer = new SampleProducer();
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
 
-      producer.on("handled", function(msg, hdr){
-        headers = hdr;
+      pub.use(function(msg, hdr, next){
+        hdr.foo = "bar";
+        next();
       });
 
-      producer.use(function(msg, headers, actions){
-        headers.foo = "bar";
-        actions.next();
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      sub.subscribe(function(msg, properties, actions, next){
+        actions.ack();
+        headers = properties.headers;
+        setTimeout(done, 250);
       });
 
-      producer.send(origMsg);
+      sub.on("ready", function(){
+        pub.publish(msg1);
+      });
     });
 
     it("should send the modified headers to the final function", function(){
       expect(headers.foo).toBe("bar");
     });
   });
-
-  describe("when sending multiple messages through the middleware", function(){
-    var messages = [];
-    var results = [];
-    var msg1 = {
-      foo: "bar"
-    };
-    var msg2 = {
-      baz: "quux"
-    };
-
-    beforeEach(function(done){
-      var producer = new SampleProducer();
-      producer.on("handled", function(msg){
-        messages.push(msg);
-        results.push("final");
-      });
-
-      producer.use(function(msg, hdr, actions){
-        results.push("m1");
-        actions.next();
-      });
-
-      producer.use(function(msg, hdr, actions){
-        results.push("m2");
-        actions.next();
-      });
-
-      producer.send(msg1);
-      setTimeout(function(){
-        producer.send(msg2);
-        done();
-      }, 100);
-    });
-
-    it("should run the middleware in order, on both messages", function(){
-      expect(results[0]).toBe("m1");
-      expect(results[1]).toBe("m2");
-      expect(results[2]).toBe("final");
-      expect(results[3]).toBe("m1");
-      expect(results[4]).toBe("m2");
-      expect(results[5]).toBe("final");
-    });
-
-    it("should send the messages through", function(){
-      expect(messages[0]).toBe(msg1);
-      expect(messages[1]).toBe(msg2);
-    });
-  });
-
 });
