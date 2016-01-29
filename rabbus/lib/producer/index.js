@@ -14,10 +14,9 @@ function Producer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
+
   this.middleware = new Middleware();
-  this.middleware.use((msg, headers, next) => {
-    next();
-  });
+  this.middleware.setParams("msg", "hdrs");
 }
 
 util.inherits(Producer, EventEmitter);
@@ -144,7 +143,6 @@ function producer(publishMethod){
       this.emitError(err);
     });
   };
-
 }
 
 // Exports

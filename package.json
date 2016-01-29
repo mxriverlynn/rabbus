@@ -40,7 +40,7 @@
     "wascally": "*"
   },
   "dependencies": {
-    "generic-middleware": "2.0.0",
+    "generic-middleware": "2.1.0",
     "postal": "1.0.7",
     "underscore": "1.8.3",
     "whistlepunk": "0.3.2"

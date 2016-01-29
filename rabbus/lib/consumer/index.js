@@ -14,10 +14,9 @@ function Consumer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
+
   this.middleware = new Middleware();
-  this.middleware.use((msg, properties, actions, next) => {
-    next();
-  });
+  this.middleware.setParams("msg", "props", "actions");
 }
 
 util.inherits(Consumer, EventEmitter);
