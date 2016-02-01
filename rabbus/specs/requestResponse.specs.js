@@ -77,6 +77,148 @@ describe("request / response", function(){
     });
   });
 
+  fdescribe("when two requests are made from the same object", function(){
+    var req, res;
+    var reqHandled, resHandled;
+    var requestMessage, responseMessage;
+
+    beforeEach(function(done){
+      responseMessage = [];
+
+      req = new Requester(rabbit, {
+        exchange: exchangeConfig,
+        messageType: msgType1,
+        routingKey: routingKey,
+      });
+      req.on("error", reportErr);
+
+      res = new Responder(rabbit, {
+        exchange: exchangeConfig,
+        queue: queueConfig,
+        messageType: msgType1,
+        routingKey: routingKey,
+      });
+
+      spyOn(res, "emit").and.callThrough();
+
+      res.on("error", reportErr);
+
+      res.handle(function(data, properties, actions, next){
+        requestMessage = data;
+        actions.reply(msg2);
+      });
+
+      function makeRequest(){
+        var p1 = new Promise(function(resolve){
+          req.request(msg1, function(data){
+            responseMessage.push({
+              requester: 1
+            });
+            resolve();
+          });
+        });
+
+        var p2 = new Promise(function(resolve){
+          req.request(msg1, function(data){
+            responseMessage.push({
+              requester: 2
+            });
+            resolve();
+          });
+        });
+
+        Promise
+          .all([p1, p2])
+          .then(done)
+          .catch(reportErr);
+      }
+
+      res.on("ready", makeRequest);
+    });
+
+    it("should handle both the requests, separately", function(){
+      expect(responseMessage.length).toBe(2);
+      expect(responseMessage[0].requester).toBe(1);
+      expect(responseMessage[1].requester).toBe(2);
+    });
+  });
+
+  describe("when two requests are made from two objects, and two responses are sent back", function(){
+    var req1, req2, res;
+    var reqHandled, resHandled;
+    var requestMessage, responseMessage;
+
+    beforeEach(function(done){
+      responseMessage = [];
+
+      req1 = new Requester(rabbit, {
+        exchange: exchangeConfig,
+        messageType: msgType1,
+        routingKey: routingKey,
+      });
+      req1.on("error", reportErr);
+
+      req2 = new Requester(rabbit, {
+        exchange: exchangeConfig,
+        messageType: msgType1,
+        routingKey: routingKey,
+      });
+      req2.on("error", reportErr);
+
+      res = new Responder(rabbit, {
+        exchange: exchangeConfig,
+        queue: queueConfig,
+        messageType: msgType1,
+        routingKey: routingKey,
+      });
+
+      spyOn(res, "emit").and.callThrough();
+
+      res.on("error", reportErr);
+
+      res.handle(function(data, properties, actions, next){
+        requestMessage = data;
+        actions.reply(msg2);
+      });
+
+      function makeRequest(){
+        var p1 = new Promise(function(resolve){
+          req1.request(msg1, function(data){
+            responseMessage[0] = {
+              data: data,
+              requester: 1
+            };
+            resolve();
+          });
+        });
+
+        var p2 = new Promise(function(resolve){
+          req2.request(msg1, function(data){
+            responseMessage[1] = {
+              data: data,
+              requester: 2
+            };
+            resolve();
+          });
+        });
+
+        Promise
+          .all([p1, p2])
+          .then(done)
+          .catch(reportErr);
+      }
+
+      res.on("ready", makeRequest);
+    });
+
+    it("should handle both the requests, separately", function(){
+      expect(responseMessage[0].data.baz).toBe(msg2.baz);
+      expect(responseMessage[0].requester).toBe(1);
+      expect(responseMessage[1].data.baz).toBe(msg2.baz);
+      expect(responseMessage[1].requester).toBe(2);
+    });
+  });
+
   describe("when a responder throws an error", function(){
     var req, res, err;
     var reqHandled, resHandled;
