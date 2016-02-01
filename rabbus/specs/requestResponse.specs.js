@@ -77,7 +77,7 @@ describe("request / response", function(){
     });
   });
 
-  fdescribe("when two requests are made from the same object", function(){
+  describe("when two requests are made from the same object", function(){
     var req, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
