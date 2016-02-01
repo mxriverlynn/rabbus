@@ -379,9 +379,8 @@ var requester = new SomeRequester(Rabbus);
 
 var msg = {};
 
-requester.request(msg, function(response, done){
+requester.request(msg, function(response){
   console.log("Hello", response.place);
-  done();
 });
 ```
 
