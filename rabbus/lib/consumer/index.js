@@ -1,10 +1,10 @@
-var Middleware = require("generic-middleware");
 var util = require("util");
 var EventEmitter = require("events").EventEmitter;
 
 var Actions = require("./actions");
 var logger = require("../logging")("rabbus.consumer");
 var optionParser = require("../optionParser");
+var MiddlewareBuilder = require("../middlewareBuilder");
 
 // Consumer
 // --------
@@ -15,8 +15,7 @@ function Consumer(rabbit, options, defaults){
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
 
-  this.middleware = new Middleware();
-  this.middleware.setParams("msg", "props", "actions");
+  this.middlewareBuilder = new MiddlewareBuilder(["msg", "props", "actions"]);
 }
 
 util.inherits(Consumer, EventEmitter);
@@ -25,7 +24,7 @@ util.inherits(Consumer, EventEmitter);
 // ---
 
 Consumer.prototype.use = function(fn){
-  this.middleware.use(fn);
+  this.middlewareBuilder.use(fn);
 };
 
 Consumer.prototype.emitError = function(err){
@@ -45,12 +44,11 @@ Consumer.prototype.consume = function(cb){
   var rabbit = this.rabbit;
   var queue = this.options.queue.name;
   var messageType = this.options.messageType;
-  var middleware = this.middleware;
 
   this._start().then(() => {
     this.emit("ready");
 
-    middleware.useAfter(null, (msg, properties, actions, next) => {
+    var middleware = this.middlewareBuilder.build((msg, properties, actions, next) => {
       try {
         cb(msg, properties, actions, next);
       } catch(err) {
@@ -63,7 +61,7 @@ Consumer.prototype.consume = function(cb){
       var body = message.body;
       var properties = message.properties;
 
-      this.middleware(body, properties, actions);
+      middleware(body, properties, actions);
     });
 
     rabbit.startSubscription(queue);
