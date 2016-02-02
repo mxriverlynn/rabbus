@@ -155,4 +155,32 @@ describe("producer middleware", function(){
       expect(headers.foo).toBe("bar");
     });
   });
+
+  describe("when a producer returns an error", function(done){
+    var pub, sub, err;
+    var exampleError = new Error("some error");
+
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
+
+      pub.use(function(pubErr, msg, hdr, next){
+        err = pubErr;
+        setTimeout(done, 250);
+      });
+
+      pub.use(function(msg, hdr, next){
+        return next(exampleError);
+      });
+
+      pub.publish(msg1);
+    });
+
+    it("should run the publish error handler", function(){
+      expect(err).toBe(exampleError);
+    });
+  });
 });

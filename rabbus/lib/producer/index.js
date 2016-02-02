@@ -14,7 +14,7 @@ function Producer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = optionParser.parse(options, defaults);
-  this.middlewareBuilder = new MiddlewareBuilder(["data", "msg", "hdrs"]);
+  this.middlewareBuilder = new MiddlewareBuilder(["msg", "hdrs"]);
 }
 
 util.inherits(Producer, EventEmitter);

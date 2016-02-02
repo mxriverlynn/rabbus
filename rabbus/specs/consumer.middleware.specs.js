@@ -149,4 +149,44 @@ describe("consumer middleware", function(){
     });
   });
 
+  describe("when a subscriber returns an error", function(done){
+    var pub, sub, err;
+    var exampleError = new Error("some error");
+
+    beforeEach(function(done){
+      pub = new Publisher(rabbit, {
+        exchange: exConfig,
+        messageType: msgType1
+      });
+      pub.on("error", reportErr);
+
+      sub = new Subscriber(rabbit, {
+        exchange: exConfig,
+        queue: qConfig,
+        messageType: msgType1,
+        routingKeys: msgType1,
+      });
+      sub.on("error", reportErr);
+
+      sub.use(function(subErr, msg, props, actions, next){
+        err = subErr;
+        actions.ack();
+        setTimeout(done, 250);
+      });
+
+      sub.subscribe(function(msg, properties, actions, next){
+        return next(exampleError);
+      });
+
+      function pubIt(){
+        pub.publish(msg1);
+      }
+
+      sub.on("ready", pubIt);
+    });
+
+    it("should run the error handler", function(){
+      expect(err).toBe(exampleError);
+    });
+  });
 });
