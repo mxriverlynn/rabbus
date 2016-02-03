@@ -174,8 +174,10 @@ The following options are available when configuring a sender:
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
-* **messageType** (string): *optional* the type of message being published. ([See below.](#the-messagetype-attribute))
+* **messageType** (string): *required* the type of message being published. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for the published message
+
+**Note**: Currently, a `messageType` is required for Pub/Sub.
 
 ### Set Up A Receiver
 
@@ -222,9 +224,11 @@ create the binding between the two.
   * **name** (string): name of the queue to create and subscriber to
   * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
   * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
-* **messageType** (string): *optional* the type of message to handle for this subscriber instance. ([See below.](#the-messagetype-attribute))
+* **messageType** (string): *required* the type of message to handle for this subscriber instance. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for binding the exchange and queue
 * **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
+
+**Note**: Currently, a `messageType` is required for Pub/Sub.
 
 ## Publish / Subscribe
 
