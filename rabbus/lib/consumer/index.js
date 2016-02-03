@@ -43,7 +43,7 @@ Consumer.prototype.stop = function(){
 Consumer.prototype.consume = function(cb){
   var rabbit = this.rabbit;
   var queue = this.options.queue.name;
-  var messageType = this.options.messageType;
+  var messageType = this.options.messageType || this.options.routingKey;
 
   this._start().then(() => {
     this.emit("ready");
@@ -67,7 +67,11 @@ Consumer.prototype.consume = function(cb){
     rabbit.startSubscription(queue);
 
     logger.info("Listening To Queue", queue);
-  }).then(null, (err) => {
+  }).catch((err) => {
+    console.log("___________________________________");
+    console.log("___________________________________");
+    console.log("___________________________________");
+    console.log(err.stack);
     this.emitError(err);
   });
 };

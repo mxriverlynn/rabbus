@@ -122,13 +122,14 @@ function producer(publishMethod){
       var middleware = this.middlewareBuilder.build((message, middlewareHeaders, next) => {
         var headers = _.extend({}, middlewareHeaders, properties.headers);
 
+        var messageType = options.messageType || options.routingKey;
         var props = _.extend({}, properties, {
           routingKey: options.routingKey,
-          type: options.messageType,
+          type: messageType,
           headers: headers
         });
 
-        logger.info("Publishing Message, Type: '" + options.messageType + "', With Routing Key '" + options.routingKey + "'");
+        logger.info("Publishing Message With Routing Key '" + options.routingKey + "'");
         logger.debug("With Properties");
         logger.debug(props);
 
