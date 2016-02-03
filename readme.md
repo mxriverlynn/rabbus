@@ -143,8 +143,7 @@ var wascally = require("wascally");
 function SomeSender(){
   Rabbus.Sender.call(this, wascally, {
     exchange: "send-rec.exchange",
-    routingKey: "send-rec.key",
-    messageType: "send-rec.messageType"
+    routingKey: "send-rec.key"
   });
 }
 
@@ -175,7 +174,7 @@ The following options are available when configuring a sender:
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message being published
+* **messageType** (string): *optional* the type of message being published. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for the published message
 
 ### Set Up A Receiver
@@ -192,8 +191,7 @@ function SomeReceiver(){
   Rabbus.Receiver.call(this, wascally, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
-    routingKey: "send-rec.key",
-    messageType: "send-rec.messageType"
+    routingKey: "send-rec.key"
   });
 }
 
@@ -224,7 +222,7 @@ create the binding between the two.
   * **name** (string): name of the queue to create and subscriber to
   * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
   * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message to handle for this subscriber instance
+* **messageType** (string): *optional* the type of message to handle for this subscriber instance. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for binding the exchange and queue
 * **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
 
@@ -248,8 +246,7 @@ var wascally = require("wascally");
 function SomePublisher(){
   Rabbus.Publisher.call(this, wascally, {
     exchange: "pub-sub.exchange",
-    routingKey: "pub-sub.key",
-    messageType: "pub-sub.messageType"
+    routingKey: "pub-sub.key"
   });
 }
 
@@ -280,7 +277,7 @@ The following options are available when configuring a publisher:
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message being published
+* **messageType** (string): *optional* the type of message being published. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for the published message
 
 ### Set Up A Subscriber
@@ -297,8 +294,7 @@ function SomeSubscriber(){
   Rabbus.Subscriber.call(this, wascally, {
     exchange: "pub-sub.exchange",
     queue: "pub-sub.queue",
-    routingKey: "pub-sub.key",
-    messageType: "pub-sub.messageType"
+    routingKey: "pub-sub.key"
   });
 }
 
@@ -338,7 +334,7 @@ create the binding between the exchange and queue.
   * **name** (string): name of the queue to create and subscriber to
   * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
   * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message to handle for this subscriber instance
+* **messageType** (string): *optional* the type of message to handle for this subscriber instance. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for binding the exchange and queue
 * **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
 
@@ -365,7 +361,6 @@ var wascally = require("wascally");
 function SomeRequester(){
   Rabbus.Requester.call(this, wascally, {
     exchange: "req-res.exchange",
-    messageType: "req-res.messageType",
     routingKey: "req-res.key"
   });
 }
@@ -395,7 +390,7 @@ The following options are available when configuring a requester:
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message being published
+* **messageType** (string): *optional* the type of message being published. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for the published message
 
 ### Set up a Responder
@@ -415,8 +410,7 @@ function SomeResponder(){
       name: "req-res.queue",
       limit: 1
     },
-    routingKey: "req-res.key",
-    messageType: "req-res.messageType"
+    routingKey: "req-res.key"
   });
 }
 
@@ -453,7 +447,7 @@ create the binding between the two.
   * **name** (string): name of the queue to create and subscriber to
   * **autoDelete** (boolean): delete this queue when there are no more connections using it. default is `false`.
   * **durable** (boolean): this queue will survive a shut down / restart of RabbitMQ. default is `true`.
-* **messageType** (string): the type of message to handle for this subscriber instance
+* **messageType** (string): *optional* the type of message to handle for this subscriber instance. ([See below.](#the-messagetype-attribute))
 * **routingKey** (string): the routing key to use for binding the exchange and queue
 * **routingKey** ([string]): an array of string for the routing key to use for binding the exchange and queue
 
@@ -587,6 +581,65 @@ The following Rabbus objects provide the `noBatch` feature:
 * Rabbus.Receiver
 * Rabbus.Subscriber
 * Rabbus.Responder
+
+## The messageType Attribute
+
+Rabbus is built on top of the wascally library, which uses a
+`messageType` attribute for messages. The behavior of the 
+`messageType` attribute makes wascally and Rabbus behave 
+somewhat differently than RabbitMQ / AMQP on their own.
+
+Internally, wascally uses an in-memory messaging library called 
+Postal.js to facilitate message delivery to consumer functions. 
+The `messageType` attribute is used by postal as it's own form 
+of a routing key. 
+
+Because of this, you can have two consumers receive a copy of
+a single message from a single queue... or, have messages from
+different queues show up in a single subscriber.
+
+```js
+c1 = new Rabbus.Subscriber({
+  // ...
+  exchange: "foo",
+  routingKey: "foo",
+  queue: "foo",
+  messageType: "foo" // <= note the message type
+});
+
+c2 = new Rabbus.Subscriber({
+  // ...
+  exchange: "bar",
+  routingKey: "bar",
+  queue: "bar",
+  messageType: "foo" // <= same message type
+});
+
+c1.subscribe(function(msg, props, actions){
+  console.log("c1 got it!");
+  actions.ack();
+});
+
+c2.subscribe(function(msg, props, actions){
+  console.log("c2 got it!");
+  actions.ack();
+});
+```
+
+In this example, it is highly likely that you will receive both
+a "c1 got it!" message and a "c2 got it!" message in the 
+console, when publishing a message for c1 to consumer.  This 
+happens because of the `messageType` being the same. Wascally
+has internally used the `messageType` to say that both the c1
+and c2 handler methods should receive the message.
+
+Leaving the `messageType` blank will cause wascally to use the
+routing key for the message, as the means by which it delivers
+messages to handlers. As long as you are using unique routing
+keys, you should probably leave the `messageType` blank. 
+
+That's not to say there isn't value in what wascally does. This
+is just different than standard RabbitMQ/AMQP.
 
 ## Extending Rabbus w/ Middleware
 
@@ -752,6 +805,8 @@ handler fires last
 It is recommended you add the middleware before adding the `handle`
 call. Adding middleware after calling `handle` could allow messages to be
 handled before the middleware is in place.
+
+
 
 ## Legalese
 
