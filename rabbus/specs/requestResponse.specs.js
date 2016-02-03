@@ -77,6 +77,52 @@ describe("request / response", function(){
     });
   });
 
+  describe("when request/response is used with no message type", function(){
+    var req, res;
+    var reqHandled, resHandled;
+    var requestMessage, responseMessage;
+
+    beforeEach(function(done){
+      req = new Requester(rabbit, {
+        exchange: exchangeConfig,
+        routingKey: routingKey,
+      });
+      req.on("error", reportErr);
+
+      res = new Responder(rabbit, {
+        exchange: exchangeConfig,
+        queue: queueConfig,
+        routingKey: routingKey,
+      });
+
+      spyOn(res, "emit").and.callThrough();
+
+      res.on("error", reportErr);
+
+      res.handle(function(data, properties, actions, next){
+        requestMessage = data;
+        actions.reply(msg2);
+      });
+
+      function makeRequest(){
+        req.request(msg1, function(data){
+          responseMessage = data;
+          done();
+        });
+      }
+
+      res.on("ready", makeRequest);
+    });
+
+    it("should handle the request", function(){
+      expect(requestMessage.foo).toBe(msg1.foo);
+    });
+
+    it("should handle the response", function(){
+      expect(responseMessage.baz).toBe(msg2.baz);
+    });
+  });
+
   describe("when two requests are made from the same object", function(){
     var req, res;
     var reqHandled, resHandled;

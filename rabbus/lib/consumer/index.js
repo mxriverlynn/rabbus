@@ -68,10 +68,6 @@ Consumer.prototype.consume = function(cb){
 
     logger.info("Listening To Queue", queue);
   }).catch((err) => {
-    console.log("___________________________________");
-    console.log("___________________________________");
-    console.log("___________________________________");
-    console.log(err.stack);
     this.emitError(err);
   });
 };

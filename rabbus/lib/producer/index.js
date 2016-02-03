@@ -64,10 +64,10 @@ Producer.prototype._publish = function(msg, properties, done){
 
   rabbit
     .publish(exchange.name, properties)
-    .then(function(){
+    .then(() => {
       if (done){ done(); }
     })
-    .then(null, (err) => {
+    .catch((err) => {
       this.emitError(err);
     });
 };
@@ -82,11 +82,11 @@ Producer.prototype._request = function(msg, properties, cb){
 
   rabbit
     .request(exchange.name, properties)
-    .then(function(reply){
+    .then((reply) => {
       cb(reply.body);
       reply.ack();
     })
-    .then(null, (err) => {
+    .catch((err) => {
       this.emitError(err);
     });
 };

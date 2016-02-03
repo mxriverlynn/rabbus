@@ -66,6 +66,49 @@ describe("send / receive", function(){
 
   });
 
+  describe("when sending and receiving without a message type", function(){
+    var msg1, send, rec;
+    var sendHandled, recHandled;
+    var sendMessage;
+
+    beforeEach(function(done){
+      msg1 = {foo: "bar"};
+
+      send = new Sender(rabbit, {
+        exchange: exchangeConfig,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: exchangeConfig,
+        queue: {
+          name: q1,
+          autoDelete: true
+        },
+        routingKey: rKey
+      });
+      rec.on("error", reportErr);
+
+      rec.receive(function(msg, properties, actions){
+        sendMessage = msg;
+        actions.ack();
+        done();
+      });
+
+      function sendIt(){
+        send.send(msg1);
+      }
+
+      rec.on("ready", sendIt);
+    });
+
+    it("receiver should receive the message", function(){
+      expect(sendMessage.foo).toBe(msg1.foo);
+    });
+
+  });
+
   describe("when a receiver throws an error", function(){
     var msg1, send, rec, err;
     var sendHandled, recHandled;
