@@ -10,8 +10,7 @@ var connection = require("../connection");
 function SomePublisher(){
   Rabbus.Publisher.call(this, wascally, {
     exchange: "pub-sub.exchange",
-    routingKey: "pub-sub.key",
-    messageType: "pub-sub.messageType"
+    routingKey: "pub-sub.key"
   });
 }
 

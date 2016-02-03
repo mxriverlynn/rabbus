@@ -9,8 +9,7 @@ var connection = require("../connection");
 
 function SomeRequester(){
   Rabbus.Requester.call(this, wascally, {
-    exchange: "req-res.exchange",
-    messageType: "req-res.messageType",
+    exchange: "req-res.exchange"
     routingKey: "req-res.key"
   });
 }

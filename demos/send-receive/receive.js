@@ -11,8 +11,7 @@ function SomeReceiver(){
   Rabbus.Receiver.call(this, wascally, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
-    routingKey: "send-rec.key",
-    messageType: "send-rec.messageType"
+    routingKey: "send-rec.key"
   });
 }
 

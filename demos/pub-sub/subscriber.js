@@ -11,8 +11,7 @@ function SomeSubscriber(){
   Rabbus.Subscriber.call(this, wascally, {
     exchange: "pub-sub.exchange",
     queue: "pub-sub.queue",
-    routingKey: "pub-sub.key",
-    messageType: "pub-sub.messageType"
+    routingKey: "pub-sub.key"
   });
 }
 

@@ -10,8 +10,7 @@ var connection = require("../connection");
 function SomeSender(){
   Rabbus.Sender.call(this, wascally, {
     exchange: "send-rec.exchange",
-    routingKey: "send-rec.key",
-    messageType: "send-rec.messageType"
+    routingKey: "send-rec.key"
   });
 }
 

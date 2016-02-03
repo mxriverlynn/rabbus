@@ -13,7 +13,6 @@ function SomeResponder(){
     queue: "req-res.queue",
     routingKey: "req-res.key",
     limit: 1,
-    messageType: "req-res.messageType",
     routingKey: "req-res.key"
   });
 }
