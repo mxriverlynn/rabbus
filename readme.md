@@ -776,22 +776,22 @@ For example, if you have a consumer that handles a message and then adds
 some middleware, you will have the middleware processed first.
 
 ```js
-sub.handle("message.type", function(msg, properties, actions, next){
+responder.handle("message.type", function(msg, properties, actions, next){
   console.log("handler fires last");
   actions.ack();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("first middleware");
   next();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("second middleware");
   next();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("third middleware");
   next();
 });
