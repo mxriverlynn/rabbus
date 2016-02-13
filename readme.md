@@ -1,13 +1,13 @@
 ![](logo/rabbus-logo.png)
 
 A highly opinionated, yet minimal, set of message bus abstractions for NodeJS.
-It is built on top of [RabbitMQ](http://rabbitmq.com), 
+It is built on top of [RabbitMQ](http://rabbitmq.com),
 with [Wascally](https://github.com/LeanKit-Labs/wascally) as the primary library
 for working with RabbitMQ.
 
 ## About Rabbus
 
-The service bus implementation is basic, but includes several of the most 
+The service bus implementation is basic, but includes several of the most
 common patterns:
 
 * Send / Receive
@@ -16,7 +16,7 @@ common patterns:
 
 The items on the left are "producers" as they produce a message for RabbitMQ
 to route and handle. Items on the right are "consumers" as they consume a
-message from a queue in RabbitMQ. 
+message from a queue in RabbitMQ.
 
 Producers and Consumers inherit from a base class of that name, providing
 common functionality and a means by which all producers / consumers can be
@@ -92,12 +92,12 @@ point where they need to be used. The configuration of each object can then be
 encapsulated for the intended use, allowing easier testing and maintenance.
 
 There are a few commonalities between all of these object pairs. Most notably,
-the object that sends a message to RabbitMQ only needs to know about the 
+the object that sends a message to RabbitMQ only needs to know about the
 exchange to which it sends. Conversely, the object that consumes a message
-from within RabbitMQ needs to know about both the exchange and the queue to 
+from within RabbitMQ needs to know about both the exchange and the queue to
 which it subscribes.
 
-The following provide basic working examples of each object pair. If you would 
+The following provide basic working examples of each object pair. If you would
 like to run these demos for yourself, please see the [demos folder](demos)
 of the repository.
 
@@ -127,7 +127,7 @@ section of the documentation, below.
 
 ## Send / Receive
 
-The Send / Receive object pair uses a direct exchange inside of RabbitMQ, 
+The Send / Receive object pair uses a direct exchange inside of RabbitMQ,
 allowing you to specify the binding key.
 
 ### Set Up A Sender
@@ -232,7 +232,7 @@ create the binding between the two.
 
 ## Publish / Subscribe
 
-The Publish / Subscribe object pair uses a fanout exchange inside of RabbitMQ, 
+The Publish / Subscribe object pair uses a fanout exchange inside of RabbitMQ,
 allowing you to have as many subscribers as you need. Think of pub/sub as an
 event that gets broadcast to anyone that cares, or no one at all if no one is
 listening.
@@ -345,7 +345,7 @@ create the binding between the exchange and queue.
 ## Request / Response
 
 The request/response pair uses a "topic" exchange. You should set the
-routing key via the "routingKey" parameter, but it will default to the 
+routing key via the "routingKey" parameter, but it will default to the
 message type if none is supplied.
 
 With a request/response setup, you can send a request for information and
@@ -457,9 +457,9 @@ create the binding between the two.
 
 ### General Error Handling
 
-Rabbus uses a middleware structure (see below) to both produce and consume 
-messages, similar to that of Express.js. As such, errors are generally 
-pushed through the `next(err)` call, and handled through an error handling 
+Rabbus uses a middleware structure (see below) to both produce and consume
+messages, similar to that of Express.js. As such, errors are generally
+pushed through the `next(err)` call, and handled through an error handling
 middleware function.
 
 ```js
@@ -474,8 +474,8 @@ myProducer.use(function(err, message, properties, actions, next){
 #### Non-Middleware Errors
 
 Each of the objects in Rabbus will also emit an "error"
-message when an error occurs outside of the middleware stack. 
-You can use standard NodeJS EventEmitter functions to 
+message when an error occurs outside of the middleware stack.
+You can use standard NodeJS EventEmitter functions to
 subscribe / unsubscribe the error events.
 
 ```js
@@ -574,7 +574,7 @@ Rabbus provide a `noBatch` option for Queue definitions.
 var Subscriber = new Rabbus.Subscriber({
   // ...
   queue: {
-    //... 
+    //...
     noBatch: true
   }
 });
@@ -589,14 +589,14 @@ The following Rabbus objects provide the `noBatch` feature:
 ## The messageType Attribute
 
 Rabbus is built on top of the wascally library, which uses a
-`messageType` attribute for messages. The behavior of the 
-`messageType` attribute makes wascally and Rabbus behave 
+`messageType` attribute for messages. The behavior of the
+`messageType` attribute makes wascally and Rabbus behave
 somewhat differently than RabbitMQ / AMQP on their own.
 
-Internally, wascally uses an in-memory messaging library called 
-Postal.js to facilitate message delivery to consumer functions. 
-The `messageType` attribute is used by postal as it's own form 
-of a routing key. 
+Internally, wascally uses an in-memory messaging library called
+Postal.js to facilitate message delivery to consumer functions.
+The `messageType` attribute is used by postal as it's own form
+of a routing key.
 
 Because of this, you can have two consumers receive a copy of
 a single message from a single queue... or, have messages from
@@ -631,8 +631,8 @@ c2.subscribe(function(msg, props, actions){
 ```
 
 In this example, it is highly likely that you will receive both
-a "c1 got it!" message and a "c2 got it!" message in the 
-console, when publishing a message for c1 to consumer.  This 
+a "c1 got it!" message and a "c2 got it!" message in the
+console, when publishing a message for c1 to consumer.  This
 happens because of the `messageType` being the same. Wascally
 has internally used the `messageType` to say that both the c1
 and c2 handler methods should receive the message.
@@ -640,17 +640,17 @@ and c2 handler methods should receive the message.
 Leaving the `messageType` blank will cause wascally to use the
 routing key for the message, as the means by which it delivers
 messages to handlers. As long as you are using unique routing
-keys, you should probably leave the `messageType` blank. 
+keys, you should probably leave the `messageType` blank.
 
 That's not to say there isn't value in what wascally does. This
 is just different than standard RabbitMQ/AMQP.
 
 ## Extending Rabbus w/ Middleware
 
-Rabbus message Producers and Consumers use a middleware system that allows you 
-to extend the capabilities of the bus. To use it, call the `.use` method of any 
-given message Consumer object (Receiver, Responder, Subscriber) or Producer 
-(Sender, Requester, Publisher). 
+Rabbus message Producers and Consumers use a middleware system that allows you
+to extend the capabilities of the bus. To use it, call the `.use` method of any
+given message Consumer object (Receiver, Responder, Subscriber) or Producer
+(Sender, Requester, Publisher).
 
 The `use` method takes a callback function with a signature that varies depending
 on whether you're using a producer or consumer.
@@ -717,7 +717,7 @@ rec.use(function(message, properties, actions, next){
 ```
 
 **WARNING:** If you forget to call `next()` or one of the other actions,
-your message will be stuck in limbo, unacknowledged. 
+your message will be stuck in limbo, unacknowledged.
 
 ### Producer Middleware
 
@@ -769,29 +769,29 @@ be used to stop messages that should not be sent.
 
 ### Order Of Middleware Processing
 
-Whether you are using a Producer or Consumer, middleware is processed in the 
+Whether you are using a Producer or Consumer, middleware is processed in the
 order in which it was added: first in, first out.
 
 For example, if you have a consumer that handles a message and then adds
 some middleware, you will have the middleware processed first.
 
 ```js
-sub.handle("message.type", function(msg, properties, actions, next){
+responder.handle("message.type", function(msg, properties, actions, next){
   console.log("handler fires last");
   actions.ack();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("first middleware");
   next();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("second middleware");
   next();
 });
 
-sub.use(function(msg, props, actions, next){
+responder.use(function(msg, props, actions, next){
   console.log("third middleware");
   next();
 });
@@ -814,6 +814,6 @@ handled before the middleware is in place.
 
 ## Legalese
 
-Rabbus is Copyright &copy;2016 Muted Solutions, LLC. All Rights Reserved. 
+Rabbus is Copyright &copy;2016 Muted Solutions, LLC. All Rights Reserved.
 
 Rabbus is distributed under the [MIT license](http://mutedsolutions.mit-license.org).
