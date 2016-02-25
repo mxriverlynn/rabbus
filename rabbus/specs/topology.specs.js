@@ -12,9 +12,9 @@ function reportErr(err){
 }
 
 fdescribe("topology", function(){
-  var msgType1 = "send-receive.messageType.1";
-  var ex1 = "send-receive.ex.1";
-  var q1 = "send-receive.q.1";
+  var msgType1 = "preconfigured.messageType.1";
+  var ex1 = "preconfigured.ex.1";
+  var q1 = "preconfigured.q.1";
   var rKey = "test.key";
 
   var exchangeConfig = {
@@ -62,13 +62,13 @@ fdescribe("topology", function(){
 
       Promise.all([sP, rP]).then(function(){
         var preConfigSendTop = new Topology(rabbit, {
-          queue: q1
+          exchange: ex1
         });
         send = new Sender(rabbit, preConfigSendTop);
         send.on("error", reportErr);
 
         var preConfigRecTop = new Topology(rabbit, {
-          exchange: ex1
+          queue: q1
         });
         rec = new Receiver(rabbit, preConfigRecTop);
         rec.on("error", reportErr);
