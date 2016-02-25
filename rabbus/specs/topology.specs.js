@@ -30,23 +30,13 @@ fdescribe("topology", function(){
     beforeEach(function(done){
       msg1 = {foo: "bar"};
 
-      var sendTopology = new Topology(rabbit, {
-        exchange: exchangeConfig,
-        messageType: msgType1,
-        routingKey: rKey
-      });
-
-      var receiveTopology = new Topology(rabbit, {
-        exchange: exchangeConfig,
-        queue: {
-          name: q1,
-          autoDelete: true
-        },
-        messageType: msgType1,
-        routingKey: rKey
-      });
-
       var sP = new Promise(function(res, rej){
+        var sendTopology = new Topology(rabbit, {
+          exchange: exchangeConfig,
+          messageType: msgType1,
+          routingKey: rKey
+        });
+
         sendTopology.execute(function(err){
           if (err) { return rej(err); }
           res();
@@ -54,6 +44,16 @@ fdescribe("topology", function(){
       });
 
       var rP = new Promise(function(res, rej){
+        var receiveTopology = new Topology(rabbit, {
+          exchange: exchangeConfig,
+          queue: {
+            name: q1,
+            autoDelete: true
+          },
+          messageType: msgType1,
+          routingKey: rKey
+        });
+
         receiveTopology.execute(function(err){
           if (err) { return rej(err); }
           res();
