@@ -62,13 +62,17 @@ fdescribe("topology", function(){
 
       Promise.all([sP, rP]).then(function(){
         var preConfigSendTop = new Topology(rabbit, {
-          exchange: ex1
+          exchange: ex1,
+          messageType: msgType1,
+          routingKey: rKey
         });
         send = new Sender(rabbit, preConfigSendTop);
         send.on("error", reportErr);
 
         var preConfigRecTop = new Topology(rabbit, {
-          queue: q1
+          queue: q1,
+          messageType: msgType1,
+          routingKey: rKey
         });
         rec = new Receiver(rabbit, preConfigRecTop);
         rec.on("error", reportErr);
