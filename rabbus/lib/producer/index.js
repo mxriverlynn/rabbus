@@ -15,11 +15,7 @@ function Producer(rabbit, options, defaults){
 
   this.rabbit = rabbit;
   this.options = options;
-
-  var topologyConfig = {
-    exchange: options.exchange
-  };
-  this.topology = new Topology(rabbit, topologyConfig, defaults);
+  this.topology = new Topology(rabbit, options, defaults);
 
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "hdrs"]);
 }

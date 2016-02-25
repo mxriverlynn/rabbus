@@ -5,6 +5,7 @@ var Actions = require("./actions");
 var logger = require("../logging")("rabbus.consumer");
 var optionParser = require("../optionParser");
 var MiddlewareBuilder = require("../middlewareBuilder");
+var Topology = require("../topology");
 
 // Consumer
 // --------
@@ -13,7 +14,8 @@ function Consumer(rabbit, options, defaults){
   EventEmitter.call(this);
 
   this.rabbit = rabbit;
-  this.options = optionParser.parse(options, defaults);
+  this.options = options;
+  this.topology = new Topology(rabbit, options, defaults);
 
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "props", "actions"]);
 }
@@ -32,7 +34,7 @@ Consumer.prototype.emitError = function(err){
 };
 
 Consumer.prototype.stop = function(){
-  logger.info("Stopping Consumer For '" + this.options.queue.name + "'");
+  logger.info("Stopping Consumer For '" + this.topology.queue.name + "'");
   this.removeAllListeners();
   if (this.subscription) {
     this.subscription.remove();
@@ -42,10 +44,12 @@ Consumer.prototype.stop = function(){
 
 Consumer.prototype.consume = function(cb){
   var rabbit = this.rabbit;
-  var queue = this.options.queue.name;
+  var queue = this.topology.queue.name;
   var messageType = this.options.messageType || this.options.routingKey;
 
-  this._start().then(() => {
+  this.topology.execute((err) => {
+    if (err) { return this.emitError(err); }
+
     this.emit("ready");
 
     var middleware = this.middlewareBuilder.build((msg, properties, actions, next) => {
@@ -67,63 +71,7 @@ Consumer.prototype.consume = function(cb){
     rabbit.startSubscription(queue);
 
     logger.info("Listening To Queue", queue);
-  }).catch((err) => {
-    this.emitError(err);
   });
-};
-
-// Private methods
-// ---------------
-
-Consumer.prototype._start = function(){
-  if (this._startPromise){
-    return this._startPromise;
-  }
-
-  var rabbit = this.rabbit;
-  var options = this.options;
-  var queueOptions = options.queue;
-  var exchangeOptions = options.exchange;
-  var routingKey = options.routingKey;
-
-  this._startPromise = new Promise(function(resolve, reject){
-
-    logger.debug("Declaring Queue '" + queueOptions.name + "'");
-    logger.debug("With Queue Options");
-    logger.debug(queueOptions);
-
-    var qP = rabbit.addQueue(queueOptions.name, queueOptions);
-
-    logger.debug("Declaring Exchange '" + exchangeOptions.name + "'");
-    logger.debug("With Exchange Options");
-    logger.debug(exchangeOptions);
-
-    var exP = rabbit.addExchange(
-      exchangeOptions.name,
-      exchangeOptions.type,
-      exchangeOptions
-    );
-
-    Promise.all([exP, qP]).then(function(){
-
-      logger.debug("Add Binding", exchangeOptions.name, queueOptions.name, routingKey);
-
-      rabbit
-        .bindQueue(exchangeOptions.name, queueOptions.name, routingKey)
-        .then(function(){
-          resolve();
-        })
-        .then(null, function(err){
-          reject(err);
-        });
-
-    }).then(null, function(err){
-      reject(err);
-    });
-
-  });
-
-  return this._startPromise;
 };
 
 // Exports

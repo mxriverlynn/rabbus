@@ -4,13 +4,18 @@ var util = require("util");
 var logger = require("../logging")("rabbus.topology");
 var OptionParser = require("../optionParser");
 
+var startKey = Symbol("started");
+
 // Topology
 // --------
 
 function Topology(rabbit, options, defaults){
   this.rabbit = rabbit;
   this.options = OptionParser.parse(options, defaults);
+
   this.exchange = this.options.exchange;
+  this.queue = this.options.queue;
+  this.routingKey = this.options.routingKey;
 }
 
 // Public Members
@@ -29,15 +34,62 @@ Topology.prototype.execute = function(cb){
 // ---------------
 
 Topology.prototype._start = function(){
-  if (this._startPromise){ return this._startPromise; }
+  if (this[startKey]){ return this[startKey]; }
+
   var exchange = this.options.exchange;
+  var queue = this.options.queue;
+  var routingKey = this.options.routingKey;
 
-  logger.info("Declaring exchange", exchange.name);
-  logger.debug("With Exchange Options", exchange);
+  this[startKey] = new Promise((resolve, reject) => {
+    
+    var exP = this._addExchange(exchange);
+    var qP = this._addQueue(queue);
 
-  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
+    Promise.all([exP, qP])
+    .then(() => {
+      return this._addBinding(exchange.name, queue.name, routingKey);
+    })
+    .then(() => resolve())
+    .catch(reject);
+  });
 
-  return this._startPromise;
+  return this[startKey];
+};
+
+Topology.prototype._addExchange = function(exchangeOptions){
+  if (!exchangeOptions) { return; }
+
+  logger.debug("Declaring Exchange '" + exchangeOptions.name + "'");
+  logger.debug("With Exchange Options");
+  logger.debug(exchangeOptions);
+
+  var exP = this.rabbit.addExchange(
+    exchangeOptions.name,
+    exchangeOptions.type,
+    exchangeOptions
+  );
+
+  return exP;
+};
+
+Topology.prototype._addQueue = function(queueOptions){
+  if (!queueOptions) { return; }
+
+  logger.debug("Declaring Queue '" + queueOptions.name + "'");
+  logger.debug("With Queue Options");
+  logger.debug(queueOptions);
+
+  var qP = this.rabbit.addQueue(queueOptions.name, queueOptions);
+  return qP;
+};
+
+Topology.prototype._addBinding = function(ex, q, routingKey){
+  if ((!ex) || (!q)){ return ; }
+
+  logger.debug("Add Binding", ex, q, routingKey);
+
+  var bP = this.rabbit.bindQueue(ex, q, routingKey);
+  return bP;
 };
 
 // Exports
