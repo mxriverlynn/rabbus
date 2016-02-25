@@ -11,7 +11,7 @@ function reportErr(err){
   });
 }
 
-fdescribe("topology", function(){
+describe("topology", function(){
   var msgType1 = "preconfigured.messageType.1";
   var ex1 = "preconfigured.ex.1";
   var q1 = "preconfigured.q.1";
