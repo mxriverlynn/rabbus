@@ -14,7 +14,6 @@ function Producer(rabbit, options, defaults){
   EventEmitter.call(this);
 
   this.rabbit = rabbit;
-  this.options = options;
   this.topology = new Topology(rabbit, options, defaults);
 
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "hdrs"]);
@@ -104,7 +103,7 @@ function producer(publishMethod){
       properties.onComplete = undefined;
     }
 
-    var options = this.options;
+    var topology = this.topology;
 
     // start the message producer
     this.topology.execute((err) => {
@@ -115,14 +114,14 @@ function producer(publishMethod){
       var middleware = this.middlewareBuilder.build((message, middlewareHeaders, next) => {
         var headers = _.extend({}, middlewareHeaders, properties.headers);
 
-        var messageType = options.messageType || options.routingKey;
+        var messageType = topology.messageType || topology.routingKey;
         var props = _.extend({}, properties, {
-          routingKey: options.routingKey,
+          routingKey: topology.routingKey,
           type: messageType,
           headers: headers
         });
 
-        logger.info("Publishing Message With Routing Key '" + options.routingKey + "'");
+        logger.info("Publishing Message With Routing Key '" + topology.routingKey + "'");
         logger.debug("With Properties");
         logger.debug(props);
 

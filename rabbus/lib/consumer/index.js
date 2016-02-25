@@ -14,7 +14,6 @@ function Consumer(rabbit, options, defaults){
   EventEmitter.call(this);
 
   this.rabbit = rabbit;
-  this.options = options;
   this.topology = new Topology(rabbit, options, defaults);
 
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "props", "actions"]);
@@ -45,7 +44,7 @@ Consumer.prototype.stop = function(){
 Consumer.prototype.consume = function(cb){
   var rabbit = this.rabbit;
   var queue = this.topology.queue.name;
-  var messageType = this.options.messageType || this.options.routingKey;
+  var messageType = this.topology.messageType || this.topology.routingKey;
 
   this.topology.execute((err) => {
     if (err) { return this.emitError(err); }

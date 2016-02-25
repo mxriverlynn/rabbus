@@ -13,6 +13,8 @@ function Topology(rabbit, options, defaults){
   this.rabbit = rabbit;
   this.options = OptionParser.parse(options, defaults);
 
+  this.routingKey = this.options.routingKey;
+  this.messageType = this.options.messageType;
   this.exchange = this.options.exchange;
   this.queue = this.options.queue;
   this.routingKey = this.options.routingKey;
