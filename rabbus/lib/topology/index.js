@@ -20,6 +20,23 @@ function Topology(rabbit, options, defaults){
   this.routingKey = this.options.routingKey;
 }
 
+// Type Members
+// ------------
+
+Topology.verify = function(rabbit, options, defaults, cb){
+  var topology;
+
+  if (isTopology(options)){
+    topology = options;
+    cb(undefined, topology);
+  } else {
+    topology = new Topology(rabbit, options, defaults);
+    topology.execute((err) => {
+      return cb(err, topology);
+    });
+  }
+};
+
 // Public Members
 // --------------
 
@@ -93,6 +110,15 @@ Topology.prototype._addBinding = function(ex, q, routingKey){
   var bP = this.rabbit.bindQueue(ex, q, routingKey);
   return bP;
 };
+
+// Helpers
+// -------
+
+function isTopology(obj){
+  if (!obj){ return false; }
+  var type = typeof obj.execute;
+  return (type.toLowerCase() === "function");
+}
 
 // Exports
 // -------

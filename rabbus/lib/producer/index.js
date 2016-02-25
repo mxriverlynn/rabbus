@@ -14,7 +14,8 @@ function Producer(rabbit, options, defaults){
   EventEmitter.call(this);
 
   this.rabbit = rabbit;
-  this.topology = new Topology(rabbit, options, defaults);
+  this.options = options;
+  this.defaults = defaults;
 
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "hdrs"]);
 }
@@ -85,6 +86,15 @@ Producer.prototype.emitError = function(err){
   this.emit("error", err);
 };
 
+Producer.prototype._verifyTopology = function(cb){
+  if (this.topology) { return this.topology; }
+  Topology.verify(this.rabbit, this.options, this.defaults, (err, topology) => {
+    if (err) { return cb(err); }
+    this.topology = topology;
+    return cb(undefined, topology);
+  });
+};
+
 // private helper methods
 // ----------------------
 
@@ -103,10 +113,8 @@ function producer(publishMethod){
       properties.onComplete = undefined;
     }
 
-    var topology = this.topology;
-
     // start the message producer
-    this.topology.execute((err) => {
+    this._verifyTopology((err, topology) => {
       if (err) { return this.emitError(err); }
 
       this.emit("ready");

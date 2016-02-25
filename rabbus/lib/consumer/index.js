@@ -12,10 +12,9 @@ var Topology = require("../topology");
 
 function Consumer(rabbit, options, defaults){
   EventEmitter.call(this);
-
   this.rabbit = rabbit;
-  this.topology = new Topology(rabbit, options, defaults);
-
+  this.options = options;
+  this.defaults = defaults;
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "props", "actions"]);
 }
 
@@ -33,7 +32,13 @@ Consumer.prototype.emitError = function(err){
 };
 
 Consumer.prototype.stop = function(){
-  logger.info("Stopping Consumer For '" + this.topology.queue.name + "'");
+  var queueName = "";
+  if (this.topology){ 
+    queueName = this.topology.queue.name; 
+    this.topology = undefined;
+  }
+  logger.info("Stopping Consumer For '" + queueName + "'");
+
   this.removeAllListeners();
   if (this.subscription) {
     this.subscription.remove();
@@ -42,12 +47,12 @@ Consumer.prototype.stop = function(){
 };
 
 Consumer.prototype.consume = function(cb){
-  var rabbit = this.rabbit;
-  var queue = this.topology.queue.name;
-  var messageType = this.topology.messageType || this.topology.routingKey;
-
-  this.topology.execute((err) => {
+  this._verifyTopology((err, topology) => {
     if (err) { return this.emitError(err); }
+
+    var rabbit = this.rabbit;
+    var queue = topology.queue.name;
+    var messageType = topology.messageType || topology.routingKey;
 
     this.emit("ready");
 
@@ -70,6 +75,18 @@ Consumer.prototype.consume = function(cb){
     rabbit.startSubscription(queue);
 
     logger.info("Listening To Queue", queue);
+  });
+};
+
+// Helpers
+// -------
+
+Consumer.prototype._verifyTopology = function(cb){
+  if (this.topology) { return this.topology; }
+  Topology.verify(this.rabbit, this.options, this.defaults, (err, topology) => {
+    if (err) { return cb(err); }
+    this.topology = topology;
+    return cb(undefined, topology);
   });
 };
 
