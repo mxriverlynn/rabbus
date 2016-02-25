@@ -390,7 +390,7 @@ The following options are available when configuring a requester:
 * **exchange** (string): name of the exchange to create and publish to
 * **exchange** (object): object literal with options for the exchange
   * **name** (string): name of the exchange to create and publish to
-  * **type** (string): type of exchange to use. default is `fanout`.
+  * **type** (string): type of exchange to use. default is `topic`.
   * **autoDelete** (boolean): delete this exchange when there are no more connections using it. default is `false`.
   * **durable** (boolean): this exchange will survive a shut down / restart of RabbitMQ. default is `true`.
   * **persistent** (boolean): messages published through this exchange will be saved to disk / survive restart of RabbitMQ. default is `true`.
