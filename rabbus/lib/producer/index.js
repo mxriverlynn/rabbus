@@ -5,6 +5,7 @@ var _ = require("underscore");
 var logger = require("../logging")("rabbus.producer");
 var optionParser = require("../optionParser");
 var MiddlewareBuilder = require("../middlewareBuilder");
+var Topology = require("../topology");
 
 // Base Producer
 // -------------
@@ -13,7 +14,13 @@ function Producer(rabbit, options, defaults){
   EventEmitter.call(this);
 
   this.rabbit = rabbit;
-  this.options = optionParser.parse(options, defaults);
+  this.options = options;
+
+  var topologyConfig = {
+    exchange: options.exchange
+  };
+  this.topology = new Topology(rabbit, topologyConfig, defaults);
+
   this.middlewareBuilder = new MiddlewareBuilder(["msg", "hdrs"]);
 }
 
@@ -42,21 +49,9 @@ Producer.prototype.request = producer(function(message, properties, cb){
 // Private Members
 // ---------------
 
-Producer.prototype._start = function(){
-  if (this._startPromise){ return this._startPromise; }
-  var exchange = this.options.exchange;
-
-  logger.info("Declaring exchange", exchange.name);
-  logger.debug("With Exchange Options", exchange);
-
-  this._startPromise = this.rabbit.addExchange(exchange.name, exchange.type, exchange);
-
-  return this._startPromise;
-};
-
 Producer.prototype._publish = function(msg, properties, done){
   var rabbit = this.rabbit;
-  var exchange = this.options.exchange;
+  var exchange = this.topology.exchange;
 
   properties = _.extend({}, properties, {
     body: msg
@@ -74,7 +69,7 @@ Producer.prototype._publish = function(msg, properties, done){
 
 Producer.prototype._request = function(msg, properties, cb){
   var rabbit = this.rabbit;
-  var exchange = this.options.exchange;
+  var exchange = this.topology.exchange;
 
   properties = _.extend({}, properties, {
     body: msg
@@ -116,7 +111,9 @@ function producer(publishMethod){
     var options = this.options;
 
     // start the message producer
-    this._start().then(() => {
+    this.topology.execute((err) => {
+      if (err) { return this.emitError(err); }
+
       this.emit("ready");
 
       var middleware = this.middlewareBuilder.build((message, middlewareHeaders, next) => {
@@ -137,9 +134,6 @@ function producer(publishMethod){
       });
 
       middleware(data, {});
-        
-    }).then(null, (err) => {
-      this.emitError(err);
     });
   };
 }
