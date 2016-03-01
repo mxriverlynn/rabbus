@@ -71,8 +71,7 @@ describe("topology", function(){
 
         var preConfigRecTop = new Topology(rabbit, {
           queue: q1,
-          messageType: msgType1,
-          routingKey: rKey
+          messageType: msgType1
         });
         rec = new Receiver(rabbit, preConfigRecTop);
         rec.on("error", reportErr);
