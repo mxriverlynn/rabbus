@@ -37,7 +37,6 @@ Producer.prototype.publish = producer(function(message, properties, done){
   this._publish(message, properties, done);
 });
   
-  
 Producer.prototype.request = producer(function(message, properties, cb){
   this._request(message, properties, cb);
 });

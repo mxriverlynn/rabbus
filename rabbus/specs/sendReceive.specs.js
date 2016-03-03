@@ -1,4 +1,4 @@
-var rabbit = require("wascally");
+var rabbit = require("rabbot");
 
 var Sender = require("../lib/send-rec/sender");
 var Receiver = require("../lib/send-rec/receiver");
@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-describe("send / receive", function(){
+fdescribe("send / receive", function(){
   var msgType1 = "send-receive.messageType.1";
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";
@@ -21,7 +21,8 @@ describe("send / receive", function(){
     autoDelete: true
   };
 
-  describe("given a receiver in place, when sending a message", function(){
+  fdescribe("given a receiver in place, when sending a message", function(){
+
     var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;
@@ -64,6 +65,9 @@ describe("send / receive", function(){
       expect(sendMessage.foo).toBe(msg1.foo);
     });
 
+    it("should not fail", function(){
+      expect(1).toBe(1);
+    });
   });
 
   describe("when sending and receiving without a message type", function(){
@@ -106,7 +110,6 @@ describe("send / receive", function(){
     it("receiver should receive the message", function(){
       expect(sendMessage.foo).toBe(msg1.foo);
     });
-
   });
 
   describe("when a receiver throws an error", function(){

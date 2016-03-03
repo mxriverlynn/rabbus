@@ -1,10 +1,10 @@
 var util = require("util");
-var wascally = require("wascally");
+var rabbot = require("rabbot");
 
 var config = require("../rabbus/specs/config");
 
 function connect(cb){
-  wascally
+  rabbot
     .configure({ connection: config })
     .then(cb)
     .catch(function(err){
@@ -24,7 +24,7 @@ process.on("unhandledException", function(err){
 function exit(){
   console.log("");
   console.log("shutting down ...");
-  wascally.closeAll().then(function(){
+  rabbot.closeAll().then(function(){
     process.exit();
   });
 }

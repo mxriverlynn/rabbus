@@ -1,5 +1,5 @@
 var util = require("util");
-var wascally = require("wascally");
+var rabbot = require("rabbot");
 var moment = require("moment");
 
 var Rabbus = require("../../rabbus/lib");
@@ -14,7 +14,7 @@ var maxCount = 10000;
 // ---------------
 
 function SomeSender(){
-  Rabbus.Sender.call(this, wascally, {
+  Rabbus.Sender.call(this, rabbot, {
     exchange: "send-rec.exchange",
     routingKey: "send-rec.key"
   });
@@ -26,7 +26,7 @@ util.inherits(SomeSender, Rabbus.Sender);
 // -----------------
 
 function SomeReceiver(){
-  Rabbus.Receiver.call(this, wascally, {
+  Rabbus.Receiver.call(this, rabbot, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
     routingKey: "send-rec.key"

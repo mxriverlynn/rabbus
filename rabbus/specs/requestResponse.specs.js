@@ -1,4 +1,4 @@
-var rabbit = require("wascally");
+var rabbit = require("rabbot");
 
 var Requester = require("../lib/req-res/requester");
 var Responder = require("../lib/req-res/responder");

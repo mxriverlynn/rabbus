@@ -1,4 +1,4 @@
-var rabbit = require("wascally");
+var rabbit = require("rabbot");
 
 var Topology = require("../lib/topology");
 var Sender = require("../lib/send-rec/sender");

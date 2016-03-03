@@ -16,6 +16,9 @@
   "latedef": false,
   "esnext": true,
   "globals": {
+    "beforeAll": true,
+    "afterAll": true,
+    "process": true,
     "describe": true,
     "fdescribe": true,
     "xdescribe": true,

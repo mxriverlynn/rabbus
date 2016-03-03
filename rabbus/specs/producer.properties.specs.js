@@ -1,4 +1,4 @@
-var rabbit = require("wascally");
+var rabbit = require("rabbot");
 
 var Sender = require("../lib/send-rec/sender");
 var Receiver = require("../lib/send-rec/receiver");

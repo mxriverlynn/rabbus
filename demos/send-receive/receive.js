@@ -1,5 +1,5 @@
 var util = require("util");
-var wascally = require("wascally");
+var rabbot = require("rabbot");
 
 var Rabbus = require("../../rabbus/lib");
 var connection = require("../connection");
@@ -8,7 +8,7 @@ var connection = require("../connection");
 // -----------------
 
 function SomeReceiver(){
-  Rabbus.Receiver.call(this, wascally, {
+  Rabbus.Receiver.call(this, rabbot, {
     exchange: "send-rec.exchange",
     queue: "send-rec.queue",
     routingKey: "send-rec.key"

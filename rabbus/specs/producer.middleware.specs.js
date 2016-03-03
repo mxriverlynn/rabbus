@@ -1,5 +1,5 @@
 var util = require("util");
-var rabbit = require("wascally");
+var rabbit = require("rabbot");
 var Publisher = require("../lib/pub-sub/publisher");
 var Subscriber = require("../lib/pub-sub/subscriber");
 
