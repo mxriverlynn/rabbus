@@ -3,6 +3,15 @@
 The following items should be considered when upgrading
 to / from various versions of Rabbus.
 
+### From v0.7.0 to v0.8.0
+
+With v0.8.0, Rabbus is now built on top of the [rabbot](https://github.com/arobson/rabbot) library,
+instead of the now deprecated wascally library.
+
+Update your projects to include the latest v1.x rabbot:
+
+`npm install rabbot --save`
+
 ### From &lt;=v0.6.2 To v0.7.0
 
 With v0.7.0, a completely new middleware system was introduced.
