@@ -21,6 +21,11 @@ util.inherits(SomeReceiver, Rabbus.Receiver);
 // -----------------------------
 
 connection(function(){
+  receive();
+  receive();
+});
+
+function receive(){
   var receiver = new SomeReceiver();
 
   // basic error handler
@@ -33,4 +38,4 @@ connection(function(){
     console.log("hello", message.place);
     actions.ack();
   });
-});
+}

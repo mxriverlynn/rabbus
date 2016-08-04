@@ -38,7 +38,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jasmine-nodejs": "^1.3.2",
     "moment": "2.11.1",
-    "rabbot": "*"
+    "rabbot": "^1.0"
   },
   "dependencies": {
     "generic-middleware": "2.1.0",

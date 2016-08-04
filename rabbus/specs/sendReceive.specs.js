@@ -22,7 +22,6 @@ fdescribe("send / receive", function(){
   };
 
   fdescribe("given a receiver in place, when sending a message", function(){
-
     var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;
