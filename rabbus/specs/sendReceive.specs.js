@@ -10,7 +10,7 @@ function reportErr(err){
   });
 }
 
-fdescribe("send / receive", function(){
+describe("send / receive", function(){
   var msgType1 = "send-receive.messageType.1";
   var ex1 = "send-receive.ex.1";
   var q1 = "send-receive.q.1";
@@ -21,7 +21,7 @@ fdescribe("send / receive", function(){
     autoDelete: true
   };
 
-  fdescribe("given a receiver in place, when sending a message", function(){
+  describe("given a receiver in place, when sending a message", function(){
     var msg1, send, rec;
     var sendHandled, recHandled;
     var sendMessage;

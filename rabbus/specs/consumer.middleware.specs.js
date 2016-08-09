@@ -28,7 +28,7 @@ describe("consumer middleware", function(){
     autoDelete: true
   };
 
-  describe("given handler function with no other middleware", function(done){
+  describe("given handler function with no other middleware", function(){
     var pub, sub, result;
 
     beforeEach(function(done){
@@ -149,7 +149,7 @@ describe("consumer middleware", function(){
     });
   });
 
-  describe("when a subscriber returns an error", function(done){
+  describe("when a subscriber returns an error", function(){
     var pub, sub, err;
     var exampleError = new Error("some error");
 

@@ -27,7 +27,7 @@ describe("producer middleware", function(){
     autoDelete: true
   };
 
-  describe("given middleware to use", function(done){
+  describe("given middleware to use", function(){
     var results, pub, sub;
 
     beforeEach(function(done){
@@ -156,7 +156,7 @@ describe("producer middleware", function(){
     });
   });
 
-  describe("when a producer returns an error", function(done){
+  describe("when a producer returns an error", function(){
     var pub, sub, err;
     var exampleError = new Error("some error");
 

@@ -13,7 +13,13 @@ beforeAll(function(done){
 });
 
 afterAll(function(done){
-  rabbit.closeAll().then(done);
+  var shutdown = rabbit.shutdown();
+  shutdown.catch(function(err){
+    console.log("ERROR SHUTTING RABBOT DOWN!!!!!!!!!");
+    console.log(err.stack);
+    done();
+  });
+  done();
 });
 
 process.on("unhandledRejection", function(err){
