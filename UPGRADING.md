@@ -10,6 +10,7 @@ instead of the now deprecated wascally library.
 
 Update your projects to include the latest v1.x rabbot:
 
+`npm uninstall wascally`
 `npm install rabbot --save`
 
 ### From &lt;=v0.6.2 To v0.7.0
