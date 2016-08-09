@@ -5,6 +5,13 @@ to / from various versions of Rabbus.
 
 ### From v0.7.0 to v0.8.0
 
+There are a few major changes in how Rabbus works, starting with this version.
+
+0. wascally is replaced with rabbot
+0. the introduction of `Topology` to manage topologies in rmq
+
+#### From wascally to rabbot
+
 With v0.8.0, Rabbus is now built on top of the [rabbot](https://github.com/arobson/rabbot) library,
 instead of the now deprecated wascally library.
 
@@ -12,6 +19,11 @@ Update your projects to include the latest v1.x rabbot:
 
 `npm uninstall wascally`
 `npm install rabbot --save`
+
+#### Topologies
+
+... need to write this
+
 
 ### From &lt;=v0.6.2 To v0.7.0
 
