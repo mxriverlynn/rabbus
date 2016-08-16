@@ -15,7 +15,6 @@ beforeAll(function(done){
 afterAll(function(done){
   var shutdown = rabbit.shutdown();
   shutdown.catch(function(err){
-    console.log("ERROR SHUTTING RABBOT DOWN!!!!!!!!!");
     console.log(err.stack);
     done();
   });

@@ -3,7 +3,6 @@ var EventEmitter = require("events").EventEmitter;
 
 var Actions = require("./actions");
 var logger = require("../logging")("rabbus.consumer");
-var optionParser = require("../optionParser");
 var MiddlewareBuilder = require("../middlewareBuilder");
 var Topology = require("../topology");
 

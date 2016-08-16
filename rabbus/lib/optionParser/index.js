@@ -9,32 +9,34 @@ var OptionParser = {
     defaults = defaults || {};
     options = deepClone(options);
 
-    options = this.parseExchange(options, defaults.exchange);
-    options = this.parseQueue(options, defaults.queue);
+    options.exchange = parseOptions(options.exchange, defaults.exchange);
+    options.queue = parseOptions(options.queue, defaults.queue);
     
     return options;
-  },
+  }
 
-  parseExchange: function(options, defaults){
-    options = stringOrObject(options, "exchange", "name");
-    options.exchange = _.defaults(options.exchange, defaults);
-    return options;
-  },
-
-  parseQueue: function(options, defaults){
-    options = stringOrObject(options, "queue", "name");
-    options.queue = _.defaults(options.queue, defaults);
-    return options;
-  },
 };
 
 // Helpers
 // -------
 
-function stringOrObject(options, name, attribute){
-  if (!_.isObject(options[name])){
-    var value = options[name];
-    options[name] = {
+function parseOptions(options, defaults, name, attr){
+  var hasOptions = !!options;
+  if (hasOptions) {
+    options = stringOrObject(options, name, attr);
+  }
+
+  var hasDefaults = !!defaults;
+  if (hasDefaults){
+    options = _.defaults(options, defaults);
+  }
+  return options;
+}
+
+function stringOrObject(options){
+  if (!_.isObject(options)){
+    var value = options;
+    options = {
       name: value
     };
   }

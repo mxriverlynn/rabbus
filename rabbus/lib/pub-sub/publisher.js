@@ -7,7 +7,9 @@ var Producer = require("../producer");
 // --------------
 
 function Publisher(rabbit, options){
-  Producer.call(this, rabbit, options, defaults);
+  Producer.call(this, rabbit, options, {
+    exchange: defaults.exchange
+  });
 }
 
 util.inherits(Publisher, Producer);

@@ -3,7 +3,6 @@ var util = require("util");
 var _ = require("underscore");
 
 var logger = require("../logging")("rabbus.producer");
-var optionParser = require("../optionParser");
 var MiddlewareBuilder = require("../middlewareBuilder");
 var Topology = require("../topology");
 
@@ -65,7 +64,6 @@ Producer.prototype._publish = function(msg, properties, done){
 Producer.prototype._request = function(msg, properties, cb){
   var rabbit = this.rabbit;
   var exchange = this.topology.exchange;
-  properties.replyTimeout = 50000;
 
   properties = _.extend({}, properties, {
     body: msg

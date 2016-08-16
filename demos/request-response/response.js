@@ -31,9 +31,12 @@ connection(function(){
   });
 
   // handle the request and send a response
-  responder.handle(function(message, poperties, actions, next){
-    actions.reply({
-      place: "world"
-    });
+  responder.handle(function(msg, props, actions, next){
+    console.log("Received request:", msg);
+
+    var data = { place: "world" };
+    actions.reply(data);
+
+    console.log(" - Replying:", data);
   });
 });

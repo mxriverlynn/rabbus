@@ -22,4 +22,3 @@ Responder.prototype.handle = Consumer.prototype.consume;
 // -------
 
 module.exports = Responder;
-

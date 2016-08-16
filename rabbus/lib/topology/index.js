@@ -66,7 +66,11 @@ Topology.prototype._start = function(){
 
     Promise.all([exP, qP])
     .then(() => {
-      return this._addBinding(exchange.name, queue.name, routingKey);
+      var hasExchange = !!exchange;
+      var hasQueue = !!hasQueue;
+      if (hasExchange && hasQueue){
+        return this._addBinding(exchange.name, queue.name, routingKey);
+      }
     })
     .then(() => resolve())
     .catch(reject);
@@ -77,6 +81,7 @@ Topology.prototype._start = function(){
 
 Topology.prototype._addExchange = function(exchangeOptions){
   if (!exchangeOptions) { return; }
+  if (exchangeOptions.declare === false) { return; }
 
   logger.debug("Declaring Exchange '" + exchangeOptions.name + "'");
   logger.debug("With Exchange Options");
@@ -93,6 +98,7 @@ Topology.prototype._addExchange = function(exchangeOptions){
 
 Topology.prototype._addQueue = function(queueOptions){
   if (!queueOptions) { return; }
+  if (queueOptions.declare === false) { return; }
 
   logger.debug("Declaring Queue '" + queueOptions.name + "'");
   logger.debug("With Queue Options");
