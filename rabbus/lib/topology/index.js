@@ -67,7 +67,7 @@ Topology.prototype._start = function(){
     Promise.all([exP, qP])
     .then(() => {
       var hasExchange = !!exchange;
-      var hasQueue = !!hasQueue;
+      var hasQueue = !!queue;
       if (hasExchange && hasQueue){
         return this._addBinding(exchange.name, queue.name, routingKey);
       }
