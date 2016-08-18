@@ -16,10 +16,22 @@ describe("request / response", function(){
   var msgType1 = "req-res.message.type";
   var routingKey = "req-res.key";
   var ex1 = "req-res.ex";
+  var ex2 = "req-res.ex.2";
+  var ex3 = "req-res.ex.3";
   var q1 = "req-res.q";
 
   var exchangeConfig = {
     name: ex1,
+    autoDelete: true
+  };
+
+  var exConfig2 = {
+    name: ex2,
+    autoDelete: true
+  };
+
+  var exConfig3 = {
+    name: ex3,
     autoDelete: true
   };
 
@@ -123,7 +135,7 @@ describe("request / response", function(){
     });
   });
 
-  xdescribe("when two requests are made from the same object", function(){
+  describe("when two requests are made from the same object", function(){
     var req, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
@@ -132,14 +144,14 @@ describe("request / response", function(){
       responseMessage = [];
 
       req = new Requester(rabbit, {
-        exchange: exchangeConfig,
+        exchange: exConfig2,
         messageType: msgType1,
         routingKey: routingKey,
       });
       req.on("error", reportErr);
 
       res = new Responder(rabbit, {
-        exchange: exchangeConfig,
+        exchange: exConfig2,
         queue: queueConfig,
         messageType: msgType1,
         routingKey: routingKey,
@@ -189,7 +201,7 @@ describe("request / response", function(){
     });
   });
 
-  xdescribe("when two requests are made from two objects, and two responses are sent back", function(){
+  describe("when two requests are made from two objects, and two responses are sent back", function(){
     var req1, req2, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
@@ -198,21 +210,21 @@ describe("request / response", function(){
       responseMessage = [];
 
       req1 = new Requester(rabbit, {
-        exchange: exchangeConfig,
+        exchange: exConfig3,
         messageType: msgType1,
         routingKey: routingKey,
       });
       req1.on("error", reportErr);
 
       req2 = new Requester(rabbit, {
-        exchange: exchangeConfig,
+        exchange: exConfig3,
         messageType: msgType1,
         routingKey: routingKey,
       });
       req2.on("error", reportErr);
 
       res = new Responder(rabbit, {
-        exchange: exchangeConfig,
+        exchange: exConfig3,
         queue: queueConfig,
         messageType: msgType1,
         routingKey: routingKey,
