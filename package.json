@@ -44,6 +44,7 @@
     "generic-middleware": "2.1.0",
     "postal": "2.0.4",
     "underscore": "1.8.3",
+    "uuid": "2.0.2",
     "whistlepunk": "0.3.3"
   },
   "peerDependencies": {},

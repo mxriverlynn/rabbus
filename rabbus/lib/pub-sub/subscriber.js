@@ -1,6 +1,6 @@
 var util = require("util");
-var os = require( "os" );
 var _ = require("underscore");
+var uuid = require("uuid");
 
 var defaults = require("./defaults");
 var Consumer = require("../consumer");
@@ -28,10 +28,9 @@ Subscriber.prototype.subscribe = Consumer.prototype.consume;
 // Helpers
 // -------
 function getUniqueName(queueName){
-  var host = os.hostname();
-  var title = process.title;
-  var pid = process.pid;
-  return util.format('%s.%s.%s.%s.sub.queue', queueName, host, title, pid );
+  var id = uuid.v4();
+  var name = util.format('%s.sub.queue.%s', queueName, id);
+  return name;
 }
   
 // Exports
