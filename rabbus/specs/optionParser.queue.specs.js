@@ -1,6 +1,6 @@
 var optionParser = require("../lib/optionParser");
 
-describe("option parser", function(){
+describe("option parser: queue - ", function(){
   var qName = "q.name";
 
   describe("when given an queue as a string", function(){
@@ -45,12 +45,12 @@ describe("option parser", function(){
       result = optionParser.parse(options);
     });
 
-    it("should return an empty queue.name", function(){
-      expect(result.queue.name).toBe(undefined);
+    it("should return an empty queue", function(){
+      expect(result.queue).toBe(undefined);
     });
   });
 
-  describe("when given default queue settings with nothing that overrides them", function(){
+  describe("when given default queue settings with no queue options", function(){
     var result;
     var defaults = {
       queue: {
@@ -65,10 +65,8 @@ describe("option parser", function(){
       result = optionParser.parse(options, defaults);
     });
 
-    it("should add the defaults the to the config", function(){
-      expect(result.queue.durable).toBe(true);
-      expect(result.queue.persistent).toBe(true);
-      expect(result.queue.foo).toBe("bar");
+    it("should return an empty queue", function(){
+      expect(result.queue).toBe(undefined);
     });
   });
 

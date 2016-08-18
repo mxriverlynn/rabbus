@@ -23,7 +23,7 @@ connection(function(){
   var publisher = new SomePublisher();
 
   // basic error handler
-  publisher.use(function(err, message, headers, next){
+  publisher.use(function(err, msg, propers, actions, next){
     setImmediate(function(){ throw err; });
   });
 

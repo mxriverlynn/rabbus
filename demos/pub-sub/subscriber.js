@@ -10,7 +10,7 @@ var connection = require("../connection");
 function SomeSubscriber(){
   Rabbus.Subscriber.call(this, rabbot, {
     exchange: "pub-sub.exchange",
-    queue: "pub-sub.queue",
+    queue: "pub-sub.q",
     routingKey: "pub-sub.key"
   });
 }
@@ -21,29 +21,16 @@ util.inherits(SomeSubscriber, Rabbus.Subscriber);
 // -------------------------------------------
 
 connection(function(){
-  // first subscriber
-  var sub1 = new SomeSubscriber();
+  var sub = new SomeSubscriber();
 
   // basic error handler
-  sub1.use(function(err, msg, props, actions, next){
+  sub.use(function(err, msg, props, actions, next){
     setTimeout(function(){ throw err; });
   });
 
-  sub1.subscribe(function(message, properties, actions, next){
-    console.log("1: hello", message.place);
-    actions.ack();
-  });
-
-  // second subscriber
-  var sub2 = new SomeSubscriber();
- 
-  // basic error handler
-  sub2.use(function(err, msg, props, actions, next){
-    setTimeout(function(){ throw err; });
-  });
-
-  sub2.subscribe(function(message, properties, actions, next){
-    console.log("2: hello", message.place);
+  // subscriber
+  sub.subscribe(function(msg, props, actions, next){
+    console.log("1: hello", msg.place);
     actions.ack();
   });
 });

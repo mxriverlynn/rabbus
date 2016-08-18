@@ -1,6 +1,6 @@
 var optionParser = require("../lib/optionParser");
 
-describe("option parser", function(){
+describe("option parser: exchange - ", function(){
 
   describe("when given an exchange as a string", function(){
     var result;
@@ -46,12 +46,12 @@ describe("option parser", function(){
       result = optionParser.parse(options);
     });
 
-    it("should return an empty exchange.name", function(){
-      expect(result.exchange.name).toBe(undefined);
+    it("should return an empty exchange config", function(){
+      expect(result.exchange).toBe(undefined);
     });
   });
 
-  describe("when given default exchange settings with nothing that overrides them", function(){
+  describe("when given default exchange settings with an empty exchange options", function(){
     var result;
     var defaults = {
       exchange: {
@@ -66,10 +66,8 @@ describe("option parser", function(){
       result = optionParser.parse(options, defaults);
     });
 
-    it("should add the defaults the to the config", function(){
-      expect(result.exchange.durable).toBe(true);
-      expect(result.exchange.persistent).toBe(true);
-      expect(result.exchange.foo).toBe("bar");
+    it("should return an empty exchange", function(){
+      expect(result.exchange).toBe(undefined);
     });
   });
 

@@ -6,8 +6,8 @@
     "persistent": true
   },
   "queue": {
-    "autoDelete": false,
-    "durable": true,
+    "autoDelete": true,
+    "durable": false,
     "noBatch": false,
     "subscribe": false
   }

@@ -123,7 +123,7 @@ describe("request / response", function(){
     });
   });
 
-  describe("when two requests are made from the same object", function(){
+  xdescribe("when two requests are made from the same object", function(){
     var req, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
@@ -189,7 +189,7 @@ describe("request / response", function(){
     });
   });
 
-  describe("when two requests are made from two objects, and two responses are sent back", function(){
+  xdescribe("when two requests are made from two objects, and two responses are sent back", function(){
     var req1, req2, res;
     var reqHandled, resHandled;
     var requestMessage, responseMessage;
