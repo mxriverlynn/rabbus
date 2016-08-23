@@ -85,7 +85,7 @@ Producer.prototype.emitError = function(err){
 };
 
 Producer.prototype._verifyTopology = function(cb){
-  if (this.topology) { return this.topology; }
+  if (this.topology) { return cb(undefined, this.topology); }
   Topology.verify(this.rabbit, this.options, this.defaults, (err, topology) => {
     if (err) { return cb(err); }
     this.topology = topology;

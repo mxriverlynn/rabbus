@@ -69,6 +69,62 @@ describe("send / receive", function(){
     });
   });
 
+  describe("when sending more than one message", function(){
+    var msg1, msg2, send, rec;
+    var sendHandled, recHandled;
+    var sendMessage, count;
+
+    beforeEach(function(done){
+      count = 0;
+      sendMessage = [];
+      msg1 = {foo: "bar"};
+      msg2 = {foo: "quux"};
+
+      send = new Sender(rabbit, {
+        exchange: exchangeConfig,
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      send.on("error", reportErr);
+
+      rec = new Receiver(rabbit, {
+        exchange: exchangeConfig,
+        queue: {
+          name: q1,
+          autoDelete: true
+        },
+        messageType: msgType1,
+        routingKey: rKey
+      });
+      rec.on("error", reportErr);
+
+      rec.receive(function(msg, properties, actions){
+        console.log(msg);
+        sendMessage.push(msg);
+        actions.ack();
+
+        count += 1;
+        if (count === 2){ done(); }
+      });
+
+      function sendIt(){
+        send.send(msg1);
+        setTimeout(() => send.send(msg2), 50);
+      }
+
+      rec.on("ready", sendIt);
+    });
+
+    it("receiver should receive the message", function(){
+      expect(sendMessage[0].foo).toBe(msg1.foo);
+      expect(sendMessage[1].foo).toBe(msg2.foo);
+    });
+
+    it("should not fail", function(){
+      expect(1).toBe(1);
+    });
+  });
+
   describe("when sending and receiving without a message type", function(){
     var msg1, send, rec;
     var sendHandled, recHandled;
