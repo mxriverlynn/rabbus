@@ -99,7 +99,6 @@ describe("send / receive", function(){
       rec.on("error", reportErr);
 
       rec.receive(function(msg, properties, actions){
-        console.log(msg);
         sendMessage.push(msg);
         actions.ack();
 
