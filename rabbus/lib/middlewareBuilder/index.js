@@ -1,14 +1,13 @@
 var GenericMiddleware = require("generic-middleware");
 
-// MiddlewareBuilder
-// -----------------
-//
+// Middleware Proxy
+// ----------------
 // Due to the way the producer#publish method works, middleware 
 // cannot be pre-configured. It must be build at the last second, 
 // when publishing the message. This object collects the middleware
 // configuration and produces the actual middleware when needed
 
-function MiddlewareBuilder(params){
+function Middleware(params){
   this.params = params;
 
   this.handlers = {
@@ -20,7 +19,7 @@ function MiddlewareBuilder(params){
 // Methods
 // -------
 
-MiddlewareBuilder.prototype.use = function(fn){
+Middleware.prototype.use = function(fn){
   // +2 for the "err" and "next" params
   var errorHandlerParamLength = this.params.length + 2; 
   var isErrorHandler = (fn.length === errorHandlerParamLength);
@@ -32,7 +31,7 @@ MiddlewareBuilder.prototype.use = function(fn){
   }
 };
 
-MiddlewareBuilder.prototype.build = function(finalFn){
+Middleware.prototype.build = function(finalFn){
   var genMid = new GenericMiddleware();
   genMid.setParams(this.params);
 
@@ -49,4 +48,4 @@ MiddlewareBuilder.prototype.build = function(finalFn){
 // exports
 // -------
 
-module.exports = MiddlewareBuilder;
+module.exports = Middleware;
