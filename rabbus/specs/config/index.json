@@ -1,5 +1,5 @@
 {
-  "server": "localhost",
+  "server": "rabbitmq",
   "vhost": "/rabbus-specs",
   "user": "rabbus",
   "pass": "rabbus"

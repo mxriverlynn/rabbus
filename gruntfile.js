@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
     jasmine_nodejs: {
       options: {
-         specNameSuffix: ".specs.js", // also accepts an array
+         specNameSuffix: ".js", // also accepts an array
          helperNameSuffix: "Helpers.js",
          useHelpers: true,
          reporters: {
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 
       rabbus: {
         helpers: ["rabbus/specs/helpers/**"],
-        specs: ["rabbus/specs/**/*.specs.js"]
+        specs: ["rabbus/specs/**/*"]
       }
     },
 
