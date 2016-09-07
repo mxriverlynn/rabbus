@@ -43,43 +43,14 @@ read [the Upgrade Guide](UPGRADING.md).
 ## Rabbus Demos
 
 There are several demos available to show the basic use of Rabbus. These demos
-can be found in the [/demos](demos) folder:
+can be found in the [/demos](demos) folder, including:
 
-Be sure to look at the `demos/connection.js` file for an example of
-how to connect to RabbitMQ.
+* Send / Receive
+* Publish / Subscribe
+* Request / Response
 
-**Note:** Change directory into the folder for the demo you wish to run.
-
-#### Send/Receive
-
-Located in the [demos/send-receive](demos/send-receive) folder.
-
-Demonstrate the send/receive pattern, to send a single message
-to a single receiver.
-
-* `node send.js`
-* `node receive.js`
-
-#### Pub/Sub
-
-Located in the [demos/pub-sub](demos/pub-sub) folder.
-
-Demonstrate the publish/subscribe pattern, with multiple
-subscribers receiving one published message.
-
-* `node publish.js`
-* `node subscriber.js`
-
-#### Request/Response
-
-Located in the [demos/request-response](demos/request-response) folder.
-
-Demonstrate the request/response pattern with a request being
-made for a location, and a response being sent with the
-location information.
-
-* `node request.js`
-* `node response.js`
+Be sure to [read the demo documentation](/docs/demos.md) for information
+on how to run these demos.
 
 ## Rabbus Documentation
 
