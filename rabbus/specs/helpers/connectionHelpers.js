@@ -2,7 +2,6 @@ var rabbit = require("rabbot");
 var config = require("../config");
 
 beforeAll(function(done){
-  console.log(config);
   rabbit.configure({ connection: config })
   .then(() => { 
     done();

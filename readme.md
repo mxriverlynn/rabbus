@@ -98,6 +98,8 @@ Other Documentation:
 
 * [Topology Management](docs/topology.md)
 * [Middleware](docs/middleware.md)
+* [Running Test Suite](docs/testing.md)
+* [Docker Configuration](docs/docker.md)
 
 ### Configuring RabbitMQ Connections
 
