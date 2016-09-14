@@ -48,7 +48,7 @@ Once you have the topology object defined, pass it into the producer / consumer 
 in place of the configuration.
 
 ```js
-var senderTop = new Rabbus.Topology({
+var senderTop = new Rabbus.Topology(rabbot, {
   exchange: "send-rec.ex",
   routingKey: "send-rec.key"
 });
@@ -69,7 +69,7 @@ You may also wish to execute your topology definition against RabbitMQ, manually
 `.execute` method of the Topology object.
 
 ```js
-var senderTop = new Rabbus.Topology({
+var senderTop = new Rabbus.Topology(rabbot, {
   exchange: "send-rec.ex",
   routingKey: "send-rec.key"
 });
