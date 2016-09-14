@@ -4,6 +4,7 @@ var Sender = require("../lib/send-rec/sender");
 var Receiver = require("../lib/send-rec/receiver");
 var Publisher = require("../lib/pub-sub/publisher");
 var Subscriber = require("../lib/pub-sub/subscriber");
+var Topology = require("../lib/topology/index.js")
 
 var rabbus = {
   Requester: Requester,
@@ -11,7 +12,8 @@ var rabbus = {
   Sender: Sender,
   Receiver: Receiver,
   Publisher: Publisher,
-  Subscriber: Subscriber
+  Subscriber: Subscriber,
+  Topology: Topology,
 };
 
 module.exports = rabbus;
