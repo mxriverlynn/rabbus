@@ -12,3 +12,4 @@ npm-debug.log
 *.sw0
 *.orig
 *.dump
+.idea
