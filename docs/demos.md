@@ -28,7 +28,7 @@ of the above files.
 
 ### Send/Receive
 
-Located in the [demos/send-receive](demos/send-receive) folder.
+Located in the [demos/send-receive](/demos/send-receive) folder.
 
 Demonstrate the send/receive pattern, to send a single message
 to a single receiver.
@@ -48,7 +48,7 @@ You will see the message that was sent.
 
 ### Pub/Sub
 
-Located in the [demos/pub-sub](demos/pub-sub) folder.
+Located in the [demos/pub-sub](/demos/pub-sub) folder.
 
 Demonstrate the publish/subscribe pattern, with multiple
 subscribers receiving one published message.
@@ -79,7 +79,7 @@ pattern.
 
 ### Request/Response
 
-Located in the [demos/request-response](demos/request-response) folder.
+Located in the [demos/request-response](/demos/request-response) folder.
 
 Demonstrate the request/response pattern with a request being
 made for a location, and a response being sent with the
