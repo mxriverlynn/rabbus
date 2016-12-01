@@ -1,4 +1,4 @@
-# Toplogy Management w/ Rabbus
+# Topology Management w/ Rabbus
 
 Rabbus uses the [Rabbot](http://github.com/arobson/rabbot) library under the hood and
 can take full advantage of the JSON / object-literal based configuration of Rabbot.
